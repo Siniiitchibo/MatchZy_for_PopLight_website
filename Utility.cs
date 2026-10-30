@@ -223,7 +223,7 @@ namespace MatchZy
 
                 if (playerReadyStatus.TryGetValue(player.Slot, out bool ready) && !ready)
                 {
-                    PrintWrappedLine(HudDestination.Center, $"Napíš .ready alebo .rdy");
+                    PrintWrappedLine(HudDestination.Center, Localizer["matchzy.utility.readyhud"]);
                 }
             }
         }

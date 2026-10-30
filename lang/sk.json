@@ -2,9 +2,11 @@
   "matchzy.ready.markedready": "Bol si označený ako pripravený.",
   "matchzy.ready.markedunready": "Bol si označený ako nepripravený.",
   "matchzy.ready.readytotestorebackupinfomessage": "Unready hráči: {0} Keď budeš pripravený na obnovenie zálohy zápasu, napíš {green}.ready{default} {1}",
+
   "matchzy.knife.sidedecisionpending": "{green}{0}{default} vyhrali knife round. Čaká sa na voľbu {green}.stay{default} alebo {green}.switch{default}",
   "matchzy.knife.decidedtostay": "{green}{0}{default} sa rozhodoli zostať na svojej strane.",
   "matchzy.knife.decidedtoswitch": "{green}{0}{default} sa rozhodoli vymeniť stranu.",
+
   "matchzy.pause.pausedthematch": "{green}{0}{default} pozastavili zápas. Ak chceš pokračovať, napíš {green}.unpause{default}",
   "matchzy.pause.teamsunpausedthematch": "Oba tímy potvrdili pokračovanie. Zápas pokračuje!",
   "matchzy.pause.teamwantstounpause": "{green}{0}{default} chcú pokračovať v zápase. {green}{1}{default}, potvrď to príkazom {green}.unpause{default}",
@@ -18,12 +20,14 @@
   "matchzy.pause.duringhalftime": "Tento príkaz nemôžeš použiť počas polčasu.",
   "matchzy.pause.matchended": "Tento príkaz nemôžeš použiť po skončení zápasu.",
   "matchzy.pause.tacticaltimeout": "Tento príkaz nemôžeš použiť počas taktického timeoutu.",
+
   "matchzy.restore.teamwantstorestore": "{green}{0}{default} chcú obnoviť zápas na začiatok aktuálneho kola. {green}{1}{default}, potvrď to príkazom {green}.stop{default}",
   "matchzy.restore.loadedsuccessfully": "Súbor zálohy bol úspešne načítaný: {0}",
   "matchzy.restore.restoredsuccessfully": "Záloha bola úspešne obnovená zo súboru: {0}",
   "matchzy.restore.queued": "Záloha {0} sa obnoví po spustení zápasu. Ak ju chceš obnoviť ihneď, zadaj príkaz znova.",
   "matchzy.restore.incomplete": "Záloha {0} neobsahuje úplné údaje o kole, nič sa neobnovilo.",
   "matchzy.restore.stopcommandrequiresnodamage": "O reštart kola nemožno požiadať, ak už niektorý z hráčov napadol súpera.",
+
   "matchzy.backup.stopduringhalftime": "Tento príkaz nemôžeš použiť počas polčasu.",
   "matchzy.backup.stopmatchended": "Tento príkaz nemôžeš použiť po skončení zápasu.",
   "matchzy.backup.stoptacticaltimeout": "Tento príkaz nemôžeš použiť počas taktického timeoutu.",
@@ -32,7 +36,9 @@
   "matchzy.backup.restorematchended": "Tento príkaz nemôžeš použiť po skončení zápasu.",
   "matchzy.backup.restoretacticaltimeout": "Tento príkaz nemôžeš použiť počas taktického timeoutu.",
   "matchzy.backup.restoredoesntexist": "Súbor zálohy {0} neexistuje. Over, či obnovuješ platnú zálohu.",
+
   "matchzy.cvars.invalidvalue": "Neplatná hodnota pre matchzy_chat_messages_timer_delay. Zadaj platné nezáporné číslo.",
+
   "matchzy.cc.enabled": "{green}Zapnuté{default}",
   "matchzy.cc.disabled": "{red}Vypnuté{default}",
   "matchzy.cc.usage": "Použitie: {0}",
@@ -62,6 +68,7 @@
   "matchzy.cc.skipveto": "Vetovanie bolo zrušené!",
   "matchzy.cc.matchpaused": "Zápas je už pozastavený, taktický timeout nemožno spustiť!",
   "matchzy.cc.nomorepauses": "Už nemáš žiadne taktické timeouty!",
+
   "matchzy.mm.matchisalreadysetup": "[LoadMatch] Zápas s ID {green}{0}{default} je už pripravený, nový zápas nemožno načítať!",
   "matchzy.mm.filedoesntexist": "[LoadMatch] Zadaný súbor neexistuje! Použitie: matchzy_loadmatch <filename>",
   "matchzy.mm.matchloadfailed": "Načítanie zápasu zlyhalo! Aktuálny zápas sa resetuje.",
@@ -69,6 +76,7 @@
   "matchzy.mm.invalidurl": "[LoadMatchDataCommand] Neplatná URL: {green}{0}{default}. Zadaj platnú URL na načítanie zápasu!",
   "matchzy.mm.httprequestfailed": "[LoadMatchFromURL] HTTP požiadavka zlyhala so stavovým kódom: {0}",
   "matchzy.mm.teamcannotbechanged": "Názvy tímov nemožno zmeniť po začatí zápasu!",
+
   "matchzy.pm.movedtospawn": "Presunutý na spawn: {0}",
   "matchzy.pm.negativenumber": "Neplatná hodnota pre príkaz {command}. Zadaj platné nezáporné číslo. Použitie: !{command} <number>",
   "matchzy.pm.lineupissaved": "Lineup už existuje! Použi iný názov alebo .delnade <nade>",
@@ -111,9 +119,12 @@
   "matchzy.pm.savepos": "Pozícia uložená.",
   "matchzy.pm.loadpos": "Pozícia načítaná.",
   "matchzy.pm.notsavedpos": "Zatiaľ si neuložil žiadnu pozíciu!",
+
   "matchzy.rs.minreadyplayers": "Minimálny počet hráčov ktorý musia zadať .ready je {green}{0}{default}",
   "matchzy.rs.forcereadiedby": "{green}{0}{default} označil tvoj tím ako pripravený.",
+
   "matchzy.sleep.sleepwhenmatchstared": "Sleep Mode nemožno spustiť, keď sa zápas už začal!",
+
   "matchzy.utility.unreadyplayers": "Počet nepripravených hráčov: {green}{0}{default}",
   "matchzy.utility.readyplayers": "Čaká sa na ostatných hráčov, ešte chýba: {green}{0}{default}",
   "matchzy.utility.minimumreadyplayers": "Minimálny počet pripravených hráčov: {green}{0}{default}, aktuálne pripravených: {green}{1}{default}",
@@ -126,6 +137,8 @@
   "matchzy.utility.matchended": "Tento príkaz nemôžeš použiť po skončení zápasu.",
   "matchzy.utility.tacticaltimeout": "Tento príkaz nemôžeš použiť počas taktického timeoutu.",
   "matchzy.utility.dontpermission": "Na použitie tohto príkazu nemáš oprávnenie!",
+  "matchzy.utility.readyhud": "Napíš .ready alebo .rdy",
+
   "matchzy.pracc.smoke": "Smoke od hráča {red}{0}{default} vybuchol po {green}{1}{default} s.",
   "matchzy.pracc.flash": "Flash od hráča {red}{0}{default} vybuchol po {green}{1}{default} s.",
   "matchzy.pracc.grenade": "Granát od hráča {red}{0}{default} vybuchol po {green}{1}{default} s.",
@@ -133,6 +146,7 @@
   "matchzy.pracc.decoy": "Decoy od hráča {red}{0}{default} vybuchol po {green}{1}{default} s.",
   "matchzy.pracc.damage": "{lightblue}{1}{default} utrpel poškodenie {red}{0}{default} (zdravie: {green}{2}{default}).",
   "matchzy.pracc.blind": "{lightblue}{0}{default} bol oslepený na {green}{1}{default} s.",
+
   "matchzy.ready.teamsmustbereadyortie": "Tímy musia potvrdiť pripravenosť do {green}{0}{default}, inak sa zápas skončí remízou.",
   "matchzy.ready.teammustbereadyorforfeit": "{green}{0}{default} musí potvrdiť pripravenosť do {green}{1}{default}, inak zápas skontumuje.",
   "matchzy.ready.teamforfeited": "{green}{0}{default} nepotvrdil pripravenosť včas a zápas prehral kontumačne.",
@@ -144,6 +158,7 @@
   "matchzy.ready.joinstartstopped": "Hráč sa odpojil. Zápas sa začne po pripojení všetkých hráčov.",
   "matchzy.ready.joinmode": "Pripravenosť netreba potvrdzovať: zápas sa začne automaticky po pripojení všetkých hráčov.",
   "matchzy.ready.waitingforplayers": "Čaká sa na pripojenie hráčov: {green}{0}{default} {1}/{2}, {green}{3}{default} {4}/{5}.",
+
   "matchzy.pause.techpausecalled": "{green}{0}{default} požiadali o technickú prestávku ({1}/{2}). Na pokračovanie zápasu napíš {green}.unpause{default}",
   "matchzy.pause.anyonecanunpause": "Maximálna dĺžka technickej prestávky uplynula. Teraz môže ktokoľvek použiť {green}.unpause{default}",
   "matchzy.pause.pauserequestcanceled": "{green}{0}{default} zrušili svoju žiadosť o prestávku.",
