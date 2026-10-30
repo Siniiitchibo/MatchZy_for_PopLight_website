@@ -11,6 +11,8 @@ public class GrenadeThrownData
 
     public Vector Velocity { get; private set; }
 
+    public Vector AngularVelocity { get; private set; }
+
     public Vector PlayerPosition { get; private set; }
 
     public QAngle PlayerAngle { get; private set; }
@@ -21,58 +23,125 @@ public class GrenadeThrownData
 
     public float Delay { get; set; }
 
-    public GrenadeThrownData(Vector nadePosition, QAngle nadeAngle, Vector nadeVelocity, Vector playerPosition, QAngle playerAngle, string grenadeType, DateTime thrownTime)
+    public UInt16 ItemIndex { get; set; }
+
+    public GrenadeThrownData(Vector nadePosition, QAngle nadeAngle, Vector nadeVelocity, Vector nadeAngularVelocity, Vector playerPosition, QAngle playerAngle, string grenadeType, DateTime thrownTime, UInt16 itemIndex)
     {
         Position = new Vector(nadePosition.X, nadePosition.Y, nadePosition.Z);
         Angle = new QAngle(nadeAngle.X, nadeAngle.Y, nadeAngle.Z);
         Velocity = new Vector(nadeVelocity.X, nadeVelocity.Y, nadeVelocity.Z);
+        AngularVelocity = new Vector(nadeAngularVelocity.X, nadeAngularVelocity.Y, nadeAngularVelocity.Z);
         PlayerPosition = new Vector(playerPosition.X, playerPosition.Y, playerPosition.Z);
         PlayerAngle = new QAngle(playerAngle.X, playerAngle.Y, playerAngle.Z);
         Type = grenadeType;
         ThrownTime = thrownTime;
         Delay = 0;
+        ItemIndex = itemIndex;
     }
 
-    public void LoadPosition(CCSPlayerController player)
+    // Returns false when the player was not moved (dead or not on T/CT).
+    public bool LoadPosition(CCSPlayerController player)
     {
-        if (player == null || player.PlayerPawn.Value == null) return;
-        player.PlayerPawn.Value.Teleport(PlayerPosition, PlayerAngle, new Vector(0, 0, 0));
+        return PlayerTeleport.TeleportUpright(player, PlayerPosition, PlayerAngle);
+    }
+
+    // Used when a native factory is not available (see GrenadeFunctions).
+    private static T? CreateWithEntityApi<T>(string designerName) where T : CBaseCSGrenadeProjectile
+    {
+        T? entity = Utilities.CreateEntityByName<T>(designerName);
+        entity?.DispatchSpawn();
+        return entity;
     }
 
     public void Throw(CCSPlayerController player)
     {
-        if (Type == "smoke")
+        if (player == null || !player.IsValid || !player.PlayerPawn.IsValid || player.PlayerPawn.Value == null) return;
+
+        CBaseCSGrenadeProjectile? grenadeEntity = null;
+        switch (Type)
         {
-            SmokeGrenadeProjectile.Create(Position, Angle, Velocity, player);
-        }
-        else if (Type == "flash" || Type == "hegrenade" || Type == "decoy" || Type == "molotov")
-        {
-            var entity = Utilities.CreateEntityByName<CBaseCSGrenadeProjectile>(Constants.NadeProjectileMap[Type]);
-            if (entity == null)
+            case "smoke":
             {
-                Console.WriteLine($"[GrenadeThrownData Fatal] Failed to create entity!");
-                return;
+                grenadeEntity = GrenadeFunctions.CSmokeGrenadeProjectile_CreateFunc?.Invoke(
+                    Position.Handle,
+                    Angle.Handle,
+                    Velocity.Handle,
+                    Velocity.Handle,
+                    IntPtr.Zero,
+                    ItemIndex,
+                    (int)player.Team);
+                grenadeEntity ??= CreateWithEntityApi<CSmokeGrenadeProjectile>("smokegrenade_projectile");
+                break;
             }
-            if (Type == "molotov") entity.SetModel("weapons/models/grenade/incendiary/weapon_incendiarygrenade.vmdl");
-            entity.Elasticity = 0.33f;
-            entity.IsLive = false;
-            entity.DmgRadius = 350.0f;
-            entity.Damage = 99.0f;
-            entity.InitialPosition.X = Position.X;
-            entity.InitialPosition.Y = Position.Y;
-            entity.InitialPosition.Z = Position.Z;
-            entity.InitialVelocity.X = Velocity.X;
-            entity.InitialVelocity.Y = Velocity.Y;
-            entity.InitialVelocity.Z = Velocity.Z;
-            entity.Teleport(Position, Angle, Velocity);
-            entity.DispatchSpawn();
-            entity.Globalname = "custom";
-            entity.AcceptInput("FireUser1", player, player);
-            entity.AcceptInput("InitializeSpawnFromWorld");
-            entity.TeamNum = player.TeamNum;
-            entity.Thrower.Raw = player.PlayerPawn.Raw;
-            entity.OriginalThrower.Raw = player.PlayerPawn.Raw;
-            entity.OwnerEntity.Raw = player.PlayerPawn.Raw;
+            case "molotov":
+            {
+                grenadeEntity = GrenadeFunctions.CMolotovProjectile_CreateFunc?.Invoke(
+                    Position.Handle,
+                    Angle.Handle,
+                    Velocity.Handle,
+                    Velocity.Handle,
+                    IntPtr.Zero,
+                    ItemIndex);
+                grenadeEntity ??= CreateWithEntityApi<CMolotovProjectile>("molotov_projectile");
+                break;
+            }
+            case "hegrenade":
+            {
+                grenadeEntity = GrenadeFunctions.CHEGrenadeProjectile_CreateFunc?.Invoke(
+                    Position.Handle,
+                    Angle.Handle,
+                    Velocity.Handle,
+                    Velocity.Handle,
+                    IntPtr.Zero,
+                    ItemIndex);
+                grenadeEntity ??= CreateWithEntityApi<CHEGrenadeProjectile>("hegrenade_projectile");
+                break;
+            }
+            case "decoy":
+            {
+                grenadeEntity = GrenadeFunctions.CDecoyProjectile_CreateFunc?.Invoke(
+                    Position.Handle,
+                    Angle.Handle,
+                    Velocity.Handle,
+                    Velocity.Handle,
+                    IntPtr.Zero,
+                    ItemIndex);
+                grenadeEntity ??= CreateWithEntityApi<CDecoyProjectile>("decoy_projectile");
+                break;
+            }
+            case "flash":
+            {
+                grenadeEntity = CreateWithEntityApi<CFlashbangProjectile>("flashbang_projectile");
+                break;
+            }
+            default:
+                Console.WriteLine($"[MatchZy] Unknown Grenade: {Type}");
+                break;
         }
+
+        if (grenadeEntity == null || !grenadeEntity.IsValid) return;
+
+        // Applied to every type, smokes included: the native factory does not launch the projectile on its own, and
+        // Globalname "custom" keeps OnEntitySpawnedHandler from recording the rethrown grenade into the history again.
+        grenadeEntity.ItemIndex = ItemIndex;
+
+        grenadeEntity.InitialPosition.X = Position.X;
+        grenadeEntity.InitialPosition.Y = Position.Y;
+        grenadeEntity.InitialPosition.Z = Position.Z;
+
+        grenadeEntity.InitialVelocity.X = Velocity.X;
+        grenadeEntity.InitialVelocity.Y = Velocity.Y;
+        grenadeEntity.InitialVelocity.Z = Velocity.Z;
+
+        grenadeEntity.AngVelocity.X = AngularVelocity.X;
+        grenadeEntity.AngVelocity.Y = AngularVelocity.Y;
+        grenadeEntity.AngVelocity.Z = AngularVelocity.Z;
+
+        grenadeEntity.Teleport(Position, Angle, Velocity);
+        grenadeEntity.Globalname = "custom";
+        grenadeEntity.TeamNum = player.TeamNum;
+        grenadeEntity.Thrower.Raw = player.PlayerPawn.Raw;
+        grenadeEntity.OriginalThrower.Raw = player.PlayerPawn.Raw;
+        grenadeEntity.OwnerEntity.Raw = player.PlayerPawn.Raw;
     }
 }

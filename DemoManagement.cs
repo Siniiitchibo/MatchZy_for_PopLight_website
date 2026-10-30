@@ -20,11 +20,66 @@ namespace MatchZy
         public string activeDemoFile = "";
 
         public bool isDemoRecording = false;
+        public bool isDemoRecordingEnabled = true;
+
+        // Going live runs mp_restartgame, and a recording started before that restart is lost. So the demo is started at the
+        // first round start after the restart (or by a fallback timer if that round start does not come).
+        private DateTime? demoStartNotBefore;
+        private CounterStrikeSharp.API.Modules.Timers.Timer? demoStartFallbackTimer;
+
+        public void StartDemoRecordingAfterRestart(float restartDelaySeconds)
+        {
+            demoStartFallbackTimer?.Kill();
+            // The round start from mp_warmup_end comes right away; the one after the restart comes restartDelaySeconds later.
+            demoStartNotBefore = DateTime.Now.AddSeconds(Math.Max(0, restartDelaySeconds - 0.25));
+            demoStartFallbackTimer = AddTimer(restartDelaySeconds + 5.0f, () =>
+            {
+                demoStartFallbackTimer = null;
+                if (demoStartNotBefore == null) return;
+                Log("[StartDemoRecordingAfterRestart] No round start after the restart, starting the demo now.");
+                demoStartNotBefore = null;
+                if (isMatchLive)
+                {
+                    StartPoplightMatchClock();
+                    StartDemoRecording();
+                }
+            });
+        }
+
+        // Called on round start.
+        public void StartPendingDemoRecording()
+        {
+            if (demoStartNotBefore == null || DateTime.Now < demoStartNotBefore) return;
+            demoStartNotBefore = null;
+            demoStartFallbackTimer?.Kill();
+            demoStartFallbackTimer = null;
+            if (isMatchLive)
+            {
+                StartPoplightMatchClock();
+                StartDemoRecording();
+            }
+        }
+
+        public void CancelPendingDemoRecording()
+        {
+            demoStartNotBefore = null;
+            demoStartFallbackTimer?.Kill();
+            demoStartFallbackTimer = null;
+        }
 
         public void StartDemoRecording()
         {
-
-            string demoFileName = FormatDemoName();
+            if (!isDemoRecordingEnabled)
+            {
+                Log("[StartDemoRecording] Demo recording is disabled.");
+                return;
+            }
+            if (isDemoRecording)
+            {
+                Log("[StartDemoRecording] Demo recording is already in progress.");
+                return;
+            }
+            string demoFileName = FormatCvarValue(demoNameFormat.Replace(" ", "_")) + ".dem";
             try
             {
                 string? directoryPath = Path.GetDirectoryName(Path.Join(Server.GameDirectory + "/csgo/", demoPath));
@@ -37,35 +92,75 @@ namespace MatchZy
                 }
                 string tempDemoPath = demoPath == "" ? demoFileName : demoPath + demoFileName;
                 activeDemoFile = tempDemoPath;
+                // Write the demo while recording (as the fork does), so less of it is lost if the server crashes.
+                if (ConVar.Find("tv_record_immediate") != null) Server.ExecuteCommand("tv_record_immediate 1");
                 Log($"[StartDemoRecoding] Starting demo recording, path: {tempDemoPath}");
-                Server.ExecuteCommand($"tv_record {tempDemoPath}");
+                TvRecord(tempDemoPath);
                 isDemoRecording = true;
             }
             catch (Exception ex)
             {
                 Log($"[StartDemoRecording - FATAL] Error: {ex.Message}. Starting demo recording with path. Name: {demoFileName}");
                 // This is to avoid demo loss in any case of exception
-                Server.ExecuteCommand($"tv_record {demoFileName}");
+                activeDemoFile = demoFileName;
+                TvRecord(demoFileName);
                 isDemoRecording = true;
             }
 
+        }
+
+        // tv_record with an absolute path (see CsgoPathArg).
+        private void TvRecord(string csgoRelativePath)
+        {
+            string fullPath = CsgoFullPath(csgoRelativePath);
+            string relativePath = csgoRelativePath.Replace('\\', '/');
+            long reportMatchId = liveMatchId;
+            RemoteLogTarget reportTarget = CurrentRemoteLogTarget();
+            Server.ExecuteCommand($"tv_record \"{relativePath}\"");
+
+            AddTimer(5.0f, () =>
+            {
+                if (isDemoRecording && !File.Exists(fullPath))
+                {
+                    Log($"[StartDemoRecording] Demo file was not created: {fullPath}. Check the console for CDemoFile errors.");
+
+                    if (isMatchSetup && !seriesEnded && liveMatchId == reportMatchId)
+                    {
+                        ReportPoplightProblem(
+                            "demo_recording",
+                            reportMatchId,
+                            $"Demo zápasu {reportMatchId} sa nezačalo nahrávať. " +
+                            "Skontroluj GOTV a konzolu servera.",
+                            reportTarget
+                        );
+                    }
+                }
+            });
         }
 
         public void StopDemoRecording(float delay, string activeDemoFile, long liveMatchId, int currentMapNumber)
         {
             Log($"[StopDemoRecording] Going to stop demorecording in {delay}s");
             string demoPath = Path.Join(Server.GameDirectory + "/csgo/", activeDemoFile);
+            (int t1score, int t2score) = GetTeamsScore();
+            int roundNumber = t1score + t2score;
+            // Captured now: at series end the match config's upload settings are restored before the upload below runs.
+            string uploadUrl = demoUploadURL;
+            string uploadHeaderKey = demoUploadHeaderKey;
+            string uploadHeaderValue = demoUploadHeaderValue;
+            RemoteLogTarget reportTarget = CurrentRemoteLogTarget();
             AddTimer(delay, () =>
             {
-                if (isDemoRecording) 
+                if (isDemoRecording)
                 {
                     Server.ExecuteCommand($"tv_stoprecord");
                 }
+                isDemoRecording = false;
                 AddTimer(15, () =>
                 {
                     Task.Run(async () =>
                     {
-                        await UploadDemoAsync(demoPath, liveMatchId, currentMapNumber);
+                        await UploadFileAsync(demoPath, uploadUrl, uploadHeaderKey, uploadHeaderValue, liveMatchId, currentMapNumber, roundNumber, reportTarget);
                     });
                 });
             });
@@ -84,80 +179,6 @@ namespace MatchZy
 
             if (tvDelay < tvDelay1) return tvDelay1;
             return tvDelay;
-        }
-
-        public async Task UploadDemoAsync(string? demoPath, long matchId, int mapNumber)
-        {
-            if (demoPath == null || demoUploadURL == "")
-            {
-                Log($"[UploadDemoAsync] Not able to upload demo, either demoPath or demoUploadURL is not set. demoPath: {demoPath} demoUploadURL: {demoUploadURL}");
-                return;
-            }
-
-            try
-            {
-                using var httpClient = new HttpClient();
-                Log($"[UploadDemoAsync] Going to upload demo on {demoUploadURL}. Complete path: {demoPath}");
-
-                if (!File.Exists(demoPath))
-                {
-                    Log($"[UploadDemoAsync ERROR] File not found: {demoPath}");
-                    return;
-                }
-
-                using FileStream fileStream = File.OpenRead(demoPath);
-
-                byte[] fileContent = new byte[fileStream.Length];
-                await fileStream.ReadAsync(fileContent, 0, (int)fileStream.Length);
-
-                using ByteArrayContent content = new ByteArrayContent(fileContent);
-                content.Headers.Add("Content-Type", "application/octet-stream");
-
-                content.Headers.Add("MatchZy-FileName", Path.GetFileName(demoPath));
-                content.Headers.Add("MatchZy-MatchId", matchId.ToString());
-                content.Headers.Add("MatchZy-MapNumber", mapNumber.ToString());
-
-                // For Get5 Panel
-                content.Headers.Add("Get5-FileName", Path.GetFileName(demoPath));
-                content.Headers.Add("Get5-MatchId", matchId.ToString());
-                content.Headers.Add("Get5-MapNumber", mapNumber.ToString());
-
-                if (!string.IsNullOrEmpty(demoUploadHeaderKey))
-                {
-                    httpClient.DefaultRequestHeaders.Add(demoUploadHeaderKey, demoUploadHeaderValue);
-                }
-
-                HttpResponseMessage response = await httpClient.PostAsync(demoUploadURL, content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    Log($"[UploadDemoAsync] File upload successful for matchId: {matchId} mapNumber: {mapNumber} fileName: {Path.GetFileName(demoPath)}.");
-                }
-                else
-                {
-                    Log($"[UploadDemoAsync ERROR] Failed to upload file. Status code: {response.StatusCode} Response: {await response.Content.ReadAsStringAsync()}");
-                }
-            }
-            catch (Exception e)
-            {
-                Log($"[UploadDemoAsync FATAL] An error occurred: {e.Message}");
-            }
-        }
-
-
-        private string FormatDemoName()
-        {
-            string formattedTime = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
-
-            var demoName = demoNameFormat
-                .Replace("{TIME}", formattedTime)
-                .Replace("{MATCH_ID}", $"{liveMatchId}")
-                .Replace("{MAP}", Server.MapName)
-                .Replace("{MAPNUMBER}", matchConfig.CurrentMapNumber.ToString())
-                .Replace("{TEAM1}", matchzyTeam1.teamName)
-                .Replace("{TEAM2}", matchzyTeam2.teamName)
-                .Replace(" ", "_");
-            return $"{demoName}.dem";
         }
 
         [ConsoleCommand("get5_demo_upload_header_key", "If defined, a custom HTTP header with this name is added to the HTTP requests for demos")]

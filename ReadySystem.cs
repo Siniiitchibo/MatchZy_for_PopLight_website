@@ -25,7 +25,8 @@ public partial class MatchZy
         return IsTeamReady((int)CsTeam.Spectator);
     }
 
-    public bool IsTeamReady(int team)
+    // log: false for frequent callers (get5_status is polled by panels).
+    public bool IsTeamReady(int team, bool log = true)
     {
         // if (matchStarted) return true;
 
@@ -33,7 +34,15 @@ public partial class MatchZy
         int minReady = GetTeamMinReady(team);
         (int playerCount, int readyCount) = GetTeamPlayerCount(team, false);
 
-        Log($"[IsTeamReady] team: {team} minPlayers:{minPlayers} minReady:{minReady} playerCount:{playerCount} readyCount:{readyCount}");
+        if (log) Log($"[IsTeamReady] team: {team} minPlayers:{minPlayers} minReady:{minReady} playerCount:{playerCount} readyCount:{readyCount}");
+
+        if (IsJoinReadyMode())
+        {
+            // Join mode: joining is ready, no .ready needed.
+            if (team == (int)CsTeam.Spectator && minReady == 0) return true;
+            if (IsTeamForcedReady((CsTeam)team)) return true;
+            return ReadyTimeLogic.IsTeamComplete(GetJoinedPlayerCount(team), minReady);
+        }
 
         if (team == (int)CsTeam.Spectator && minReady == 0)
         {

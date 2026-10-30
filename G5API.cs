@@ -2,6 +2,7 @@ using System.Text.Json;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Utils;
 using System.Text.Json.Serialization;
 using System.Runtime.Serialization;
 
@@ -32,6 +33,21 @@ namespace MatchZy
 
         [JsonPropertyName("round_time")]
         public int? RoundTime { get; set; } = null;
+
+        [JsonPropertyName("poplight_empty_seconds_remaining")]
+        public int? PoplightEmptySecondsRemaining { get; set; }
+
+        [JsonPropertyName("poplight_boot_id")]
+        public string? PoplightBootId { get; set; }
+
+        [JsonPropertyName("poplight_last_ended_matchid")]
+        public long? PoplightLastEndedMatchId { get; set; }
+
+        [JsonPropertyName("poplight_live_started_at")]
+        public long? PoplightLiveStartedAt { get; set; }
+
+        [JsonPropertyName("poplight_server_time")]
+        public long? PoplightServerTime { get; set; }
 
         [JsonPropertyName("team1")]
         public Get5StatusTeam? Team1 { get; set; } = null;
@@ -99,9 +115,7 @@ namespace MatchZy
             //       The missing attributes are:
             //       - "matchid"    - It is currently implemented to return long and correspunds to the "liveMatchId".
             //                        However, it does not return the correct values when in scrim or manual mode.
-            //       - "teamX.connected_clients" - This is not implemented. Feel free to help implement this. Currently it returns -1 to indicate that it is not implemented.
-            //       - "teamX.ready" - This is not implemented. Feel free to help implement this. Currently it indicates if everyone (not just the team) is ready.
-            //       - "round_time" - This is not implemented, as it is not currently tracked by the plugin. Currently it returns Null.
+//       - "round_time" - This is not implemented, as it is not currently tracked by the plugin. Currently it returns Null.
 
             string PluginVersion = "0.15.0";
 
@@ -111,7 +125,32 @@ namespace MatchZy
             {
                 PluginVersion = PluginVersion,
                 GameState = gamestateString,
-                Paused = isPaused
+                PoplightLiveStartedAt =
+                poplightClockMatchId == liveMatchId && poplightClockStartedAt > 0
+                    ? poplightClockStartedAt
+                    : (long?)null,
+
+                            PoplightServerTime =
+                System.DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                PoplightBootId = poplightBootId,
+                PoplightLastEndedMatchId = poplightLastEndedMatchId,
+                Paused = isPaused,
+
+                PoplightEmptySecondsRemaining =
+                    isMatchSetup && !seriesEnded
+                    && emptyMatchId == liveMatchId
+                    && emptySinceTimestamp != 0
+                        ? Math.Max(
+                            0,
+                            (int)Math.Ceiling(
+                                600 -
+                                (double)(
+                                    System.Diagnostics.Stopwatch.GetTimestamp()
+                                    - emptySinceTimestamp
+                                ) / System.Diagnostics.Stopwatch.Frequency
+                            )
+                        )
+                        : null
             };
 
             if (gamestate != Get5GameState.None)
@@ -124,36 +163,8 @@ namespace MatchZy
             if (isMatchSetup)
             {
                 (int team1, int team2) = GetTeamsScore();
-
-                bool ready = true;
-                foreach (var key in playerReadyStatus.Keys)
-                {
-                    if (!playerReadyStatus[key])
-                    {
-                        ready = false;
-                        break;
-                    }
-                }
-
-                get5Status.Team1 = new Get5StatusTeam
-                {
-                    Name = matchzyTeam1.teamName,
-                    SeriesScore = matchzyTeam1.seriesScore,
-                    CurrentMapScore = team1,
-                    ConnectedClients = -1,
-                    Ready = ready,
-                    Side = teamSides[matchzyTeam1].ToLower()
-                };
-
-                get5Status.Team2 = new Get5StatusTeam
-                {
-                    Name = matchzyTeam2.teamName,
-                    SeriesScore = matchzyTeam2.seriesScore,
-                    CurrentMapScore = team2,
-                    ConnectedClients = -1,
-                    Ready = ready,
-                    Side = teamSides[matchzyTeam2].ToLower()
-                };
+                get5Status.Team1 = GetGet5StatusTeam(matchzyTeam1, team1);
+                get5Status.Team2 = GetGet5StatusTeam(matchzyTeam2, team2);
             }
 
             if (gamestate >= Get5GameState.GoingLive)
@@ -167,6 +178,23 @@ namespace MatchZy
             }
 
             command.ReplyToCommand(JsonSerializer.Serialize(get5Status));
+        }
+
+        // Per team, as Get5 reports it: side "ct" / "t", whether that team is ready, and how many of its players are connected.
+        private Get5StatusTeam GetGet5StatusTeam(Team team, int mapScore)
+        {
+            int side = teamSides[team] == "CT" ? (int)CsTeam.CounterTerrorist : (int)CsTeam.Terrorist;
+            // Players only, as Get5 counts them (coaches are on the side too).
+            int connectedPlayers = playerData.Values.Count(p => p.IsValid && !p.IsBot && p.TeamNum == side && !team.coach.Contains(p));
+            return new Get5StatusTeam
+            {
+                Name = team.teamName,
+                SeriesScore = team.seriesScore,
+                CurrentMapScore = mapScore,
+                ConnectedClients = connectedPlayers,
+                Ready = IsTeamReady(side, log: false),
+                Side = side == (int)CsTeam.CounterTerrorist ? "ct" : "t"
+            };
         }
 
         [ConsoleCommand("get5_web_available", "Returns get5 web available")]
