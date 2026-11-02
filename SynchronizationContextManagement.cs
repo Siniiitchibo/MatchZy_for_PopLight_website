@@ -16,8 +16,8 @@ class SourceSynchronizationContext : SynchronizationContext
 
 class SyncContextScope : IDisposable
 {
-    private static SynchronizationContext _sourceContext = new SourceSynchronizationContext();
-    private SynchronizationContext? _oldContext;
+    private static readonly SynchronizationContext _sourceContext = new SourceSynchronizationContext();
+    private readonly SynchronizationContext? _oldContext;
 
     public SyncContextScope()
     {

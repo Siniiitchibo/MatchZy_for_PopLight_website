@@ -149,5 +149,6 @@
   "matchzy.pause.pauserequestcanceled": "{green}{0}{default} visszavonta a szünetkérését.",
   "matchzy.pause.unpausedby": "{green}{0}{default} folytatta a meccset.",
   "matchzy.pause.techhinttime": "{0} ({1}) technikai szünet{2}. Hátralévő idő, amíg bárki folytathatja: {3}",
-  "matchzy.pause.techhintawaiting": "{0} ({1}) technikai szünet{2}. Folytatásra vár."
+  "matchzy.pause.techhintawaiting": "{0} ({1}) technikai szünet{2}. Folytatásra vár.",
+  "matchzy.utility.readyhud": "Írd be: .ready vagy .rdy"
 }

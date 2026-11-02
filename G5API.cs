@@ -109,7 +109,7 @@ namespace MatchZy
     public partial class MatchZy
     {
         [ConsoleCommand("get5_status", "Returns get5 status")]
-        public void Get5StatusCommand(CCSPlayerController? player, CommandInfo command)
+        public void Get5StatusCommand(CCSPlayerController? _, CommandInfo command)
         {
             // TODO: Add remaining Get5 status data as specified in https://splewis.github.io/get5/latest/commands/#get5_status
             //       The missing attributes are:
@@ -119,9 +119,9 @@ namespace MatchZy
 
             string PluginVersion = "0.15.0";
 
-            Get5GameState gamestate = getGet5Gamestate();
-            string gamestateString = mapGet5GameState(gamestate);
-            Get5Status get5Status = new Get5Status
+            Get5GameState gamestate = GetGet5GameState();
+            string gamestateString = MapGet5GameState(gamestate);
+            Get5Status get5Status = new()
             {
                 PluginVersion = PluginVersion,
                 GameState = gamestateString,
@@ -169,7 +169,7 @@ namespace MatchZy
 
             if (gamestate >= Get5GameState.GoingLive)
             {
-                get5Status.Maps = matchConfig.Maplist.ToArray();
+                get5Status.Maps = [.. matchConfig.Maplist];
             }
 
             if (gamestate == Get5GameState.Live)
@@ -198,12 +198,12 @@ namespace MatchZy
         }
 
         [ConsoleCommand("get5_web_available", "Returns get5 web available")]
-        public void Get5WebAvailable(CCSPlayerController? player, CommandInfo command)
+        public void Get5WebAvailable(CCSPlayerController? _, CommandInfo command)
         {
-            command.ReplyToCommand(JsonSerializer.Serialize(new G5WebAvailable { GameState = (int) getGet5Gamestate() }));
+            command.ReplyToCommand(JsonSerializer.Serialize(new G5WebAvailable { GameState = (int) GetGet5GameState() }));
         }
 
-        private Get5GameState getGet5Gamestate()
+        private Get5GameState GetGet5GameState()
         {
             // Get state from MatchZy state phase data and map to get5 state
             // Get5 states: pre_veto, veto, warmup, knife, waiting_for_knife_decision, going_live, live, pending_restore, post_game
@@ -258,33 +258,22 @@ namespace MatchZy
             return state;
         }
 
-        private string mapGet5GameState(Get5GameState state)
+        private static string MapGet5GameState(Get5GameState state)
         {
-            switch(state)
+            return state switch
             {
-                case Get5GameState.None:
-                    return "none";
-                case Get5GameState.PreVeto:
-                    return "pre_veto";
-                case Get5GameState.Veto:
-                    return "veto";
-                case Get5GameState.Warmup:
-                    return "warmup";
-                case Get5GameState.Knife:
-                    return "knife";
-                case Get5GameState.WaitingForKnifeDecision:
-                    return "waiting_for_knife_decision";
-                case Get5GameState.GoingLive:
-                    return "going_live";
-                case Get5GameState.Live:
-                    return "live";
-                case Get5GameState.PendingRestore:
-                    return "pending_restore";
-                case Get5GameState.PostGame:
-                    return "post_game";
-                default:
-                    return "none";
-            }
+                Get5GameState.None => "none",
+                Get5GameState.PreVeto => "pre_veto",
+                Get5GameState.Veto => "veto",
+                Get5GameState.Warmup => "warmup",
+                Get5GameState.Knife => "knife",
+                Get5GameState.WaitingForKnifeDecision => "waiting_for_knife_decision",
+                Get5GameState.GoingLive => "going_live",
+                Get5GameState.Live => "live",
+                Get5GameState.PendingRestore => "pending_restore",
+                Get5GameState.PostGame => "post_game",
+                _ => "none",
+            };
         }
     }
 }

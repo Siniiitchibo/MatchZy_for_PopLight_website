@@ -23,24 +23,22 @@ namespace MatchZy
                         if (playerData[key2].TeamNum != 3) continue;
                         int targetId = key2;
                         if (!playerDamageInfo.TryGetValue(attackerId, out var attackerInfo))
-                            playerDamageInfo[attackerId] = attackerInfo = new Dictionary<int, DamagePlayerInfo>();
-
-                        if (!attackerInfo.TryGetValue(targetId, out var targetInfo))
-                            attackerInfo[targetId] = targetInfo = new DamagePlayerInfo();
+                            playerDamageInfo[attackerId] = attackerInfo = [];
+                        if (!attackerInfo.TryGetValue(targetId, out _))
+                            attackerInfo[targetId] = _ = new DamagePlayerInfo();
                     } else if (playerData[key].TeamNum == 3) {
                         if (playerData[key2].TeamNum != 2) continue;
                         int targetId = key2;
                         if (!playerDamageInfo.TryGetValue(attackerId, out var attackerInfo))
-                            playerDamageInfo[attackerId] = attackerInfo = new Dictionary<int, DamagePlayerInfo>();
-
-                        if (!attackerInfo.TryGetValue(targetId, out var targetInfo))
-                            attackerInfo[targetId] = targetInfo = new DamagePlayerInfo(); 
+                            playerDamageInfo[attackerId] = attackerInfo = [];
+                        if (!attackerInfo.TryGetValue(targetId, out _))
+                            attackerInfo[targetId] = _ = new DamagePlayerInfo(); 
                     }
                 }
             }
         }
 
-		public Dictionary<int, Dictionary<int, DamagePlayerInfo>> playerDamageInfo = new Dictionary<int, Dictionary<int, DamagePlayerInfo>>();
+		public Dictionary<int, Dictionary<int, DamagePlayerInfo>> playerDamageInfo = [];
 		private void UpdatePlayerDamageInfo(EventPlayerHurt @event, int targetId)
 		{
             CCSPlayerController? attacker = @event.Attacker;
@@ -48,7 +46,7 @@ namespace MatchZy
             if (!IsPlayerValid(attacker)) return;
 			int attackerId = (int)attacker!.UserId!;
 			if (!playerDamageInfo.TryGetValue(attackerId, out var attackerInfo))
-				playerDamageInfo[attackerId] = attackerInfo = new Dictionary<int, DamagePlayerInfo>();
+				playerDamageInfo[attackerId] = attackerInfo = [];
 
 			if (!attackerInfo.TryGetValue(targetId, out var targetInfo))
 				attackerInfo[targetId] = targetInfo = new DamagePlayerInfo();
@@ -62,7 +60,7 @@ namespace MatchZy
             if (!enableDamageReport.Value) return;
             try
             {
-                HashSet<(int, int)> processedPairs = new HashSet<(int, int)>();
+                HashSet<(int, int)> processedPairs = [];
 
                 foreach (var entry in playerDamageInfo)
                 {

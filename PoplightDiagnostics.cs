@@ -11,8 +11,8 @@ namespace MatchZy
 
         private long poplightLastEndedMatchId = 0;
 
-        private readonly HashSet<string> poplightReportedProblems = new();
-        private readonly object poplightProblemLock = new();
+        private readonly HashSet<string> poplightReportedProblems = [];
+        private readonly Lock poplightProblemLock = new();
 
         private void ReportPoplightProblem(
             string code,

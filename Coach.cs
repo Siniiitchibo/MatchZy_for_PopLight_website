@@ -13,7 +13,7 @@ public partial class MatchZy
 
     public HashSet<CCSPlayerController> GetAllCoaches()
     {
-        HashSet<CCSPlayerController> coaches = new(matchzyTeam1.coach);
+        HashSet<CCSPlayerController> coaches = [.. matchzyTeam1.coach];
         coaches.UnionWith(matchzyTeam2.coach);
 
         return coaches;
@@ -69,7 +69,7 @@ public partial class MatchZy
 
         matchZyCoachTeam.coach.Add(player!);
         player!.Clan = $"[{matchZyCoachTeam.teamName} COACH]";
-        if (player.InGameMoneyServices != null) player.InGameMoneyServices.Account = 0;
+        player.InGameMoneyServices?.Account = 0;
         ReplyToUserCommand(player, $"You are now coaching {matchZyCoachTeam.teamName}! Use .uncoach to stop coaching");
         PrintToAllChat($"{ChatColors.Green}{player.PlayerName}{ChatColors.Default} is now coaching {ChatColors.Green}{matchZyCoachTeam.teamName}{ChatColors.Default}!");
     }
@@ -89,7 +89,7 @@ public partial class MatchZy
             return;
         }
 
-        int freezeTime = ConVar.Find("mp_freezetime")!.GetPrimitiveValue<int>();
+        int freezeTime = ConVar<int>.Find("mp_freezetime")!.Value;
         freezeTime = freezeTime > 2 ? freezeTime: 2;
         coachKillTimer ??= AddTimer(freezeTime - 1f, KillCoaches);
 
@@ -130,8 +130,8 @@ public partial class MatchZy
         }
 
         List<CCSPlayerController> players = Utilities.GetPlayers();
-        HashSet<Position> occupiedSpawns = new();
-        HashSet<CCSPlayerController> incorrectSpawnedPlayers = new();
+        HashSet<Position> occupiedSpawns = [];
+        HashSet<CCSPlayerController> incorrectSpawnedPlayers = [];
 
         // We will loop on the players 2 times, first loop is to get all the players who are on a non-competitive spawn, and to get all the non-occupied competitive spawn.
         // In the next loop, we will teleport the non-competitive spawned players to an available competitive spawn.
@@ -177,7 +177,7 @@ public partial class MatchZy
         }
     }
 
-    private void HandleCoachWeapons(CCSPlayerController coach)
+    private static void HandleCoachWeapons(CCSPlayerController coach)
     {
         if (!IsPlayerValid(coach)) return;
         coach.RemoveWeapons();
@@ -202,7 +202,7 @@ public partial class MatchZy
                 && p.TeamNum == (int)CsTeam.Terrorist
                 && p.PawnIsAlive
             );
-        if (!IsPlayerValid(target)) return; // should never trigger
+        if (target == null || !IsPlayerValid(target)) return; // should never trigger
 
         // transfer bomb
         Log($"[EventPlayerGivenC4 INFO] Transferred bomb from {coach.PlayerName} (Coach) to {target.PlayerName}.");
@@ -245,7 +245,7 @@ public partial class MatchZy
             playerController.ChangeTeam(CsTeam.Spectator);
             AddTimer(0.01f, () => playerController.ChangeTeam(oldTeam));
         }
-        if (playerController.InGameMoneyServices != null) playerController.InGameMoneyServices.Account = 0;
+        playerController.InGameMoneyServices?.Account = 0;
     }
 
     private void KillCoaches()
@@ -253,10 +253,10 @@ public partial class MatchZy
         if (isPaused || IsTacticalTimeoutActive()) return;
         HashSet<CCSPlayerController> coaches = GetAllCoaches();
         if (IsWingmanMode() || coaches.Count == 0) return;
-        string suicidePenalty = GetConvarStringValue(ConVar.Find("mp_suicide_penalty"));
-        string specFreezeTime = GetConvarStringValue(ConVar.Find("spec_freeze_time"));
-        string specFreezeTimeLock = GetConvarStringValue(ConVar.Find("spec_freeze_time_lock"));
-        string specFreezeDeathanim = GetConvarStringValue(ConVar.Find("spec_freeze_deathanim_time"));
+        string suicidePenalty = GetConvarStringValue("mp_suicide_penalty");
+        string specFreezeTime = GetConvarStringValue("spec_freeze_time");
+        string specFreezeTimeLock = GetConvarStringValue("spec_freeze_time_lock");
+        string specFreezeDeathanim = GetConvarStringValue("spec_freeze_deathanim_time");
         Server.ExecuteCommand("mp_suicide_penalty 0;spec_freeze_time 0; spec_freeze_time_lock 0; spec_freeze_deathanim_time 0;");
 
         foreach (var coach in coaches)
@@ -284,7 +284,7 @@ public partial class MatchZy
             foreach (var entry in jsonDictionary)
             {
                 byte team = byte.Parse(entry.Key);
-                List<Position> positionList = new();
+                List<Position> positionList = [];
 
                 foreach (var positionData in entry.Value)
                 {

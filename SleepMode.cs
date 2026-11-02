@@ -41,7 +41,7 @@ namespace MatchZy
         }
 
         [ConsoleCommand("css_sleep", "Starts sleep mode")]
-        public void OnSleepCommand(CCSPlayerController? player, CommandInfo? command)
+        public void OnSleepCommand(CCSPlayerController? player, CommandInfo? _1)
         {
             if (!IsPlayerAdmin(player, "css_sleep", "@css/map", "@custom/prac"))
             {

@@ -1,38 +1,25 @@
 using System.Text.Json.Serialization;
 
 namespace MatchZy;
-public class MatchZyEvent
+public class MatchZyEvent(string eventName)
 {
-    public MatchZyEvent(string eventName)
-    {
-        EventName = eventName;
-    }
-
     [JsonPropertyName("event")]
-    public string EventName { get; }
+    public string EventName { get; } = eventName;
 }
 
-public class PoplightErrorEvent : MatchZyEvent
+public class PoplightErrorEvent(
+    string message,
+    string? code = null,
+    long? matchId = null) : MatchZyEvent("poplight_error")
 {
-    public PoplightErrorEvent(
-        string message,
-        string? code = null,
-        long? matchId = null)
-        : base("poplight_error")
-    {
-        Message = message;
-        Code = code;
-        MatchId = matchId;
-    }
-
     [JsonPropertyName("message")]
-    public string Message { get; }
+    public string Message { get; } = message;
 
     [JsonPropertyName("code")]
-    public string? Code { get; }
+    public string? Code { get; } = code;
 
     [JsonPropertyName("matchid")]
-    public long? MatchId { get; }
+    public long? MatchId { get; } = matchId;
 }
 
 public class MatchZyMatchEvent : MatchZyEvent
@@ -203,14 +190,10 @@ public class MatchZyPlayerDeathEvent : MatchZyPlayerTimedRoundEvent
 }
 
 // Get5PlayerBombEvent: bomb_planted / bomb_defused. site is "a", "b" or null.
-public class MatchZyBombEvent : MatchZyPlayerTimedRoundEvent
+public class MatchZyBombEvent(string eventName) : MatchZyPlayerTimedRoundEvent(eventName)
 {
     [JsonPropertyName("site")]
     public string? Site { get; init; }
-
-    public MatchZyBombEvent(string eventName) : base(eventName)
-    {
-    }
 }
 
 public class MatchZyBombDefusedEvent : MatchZyBombEvent
@@ -271,17 +254,13 @@ public class MatchZySeriesStartedEvent : MatchZyMatchEvent
 }
 
 // game_paused / game_unpaused, as in Get5.
-public class MatchZyPauseEvent : MatchZyMapEvent
+public class MatchZyPauseEvent(string eventName) : MatchZyMapEvent(eventName)
 {
     [JsonPropertyName("team")]
     public required string Team { get; init; }
 
     [JsonPropertyName("pause_type")]
     public required string PauseType { get; init; }
-
-    public MatchZyPauseEvent(string eventName) : base(eventName)
-    {
-    }
 }
 
 public class MatchZySeriesResultEvent : MatchZyMatchEvent

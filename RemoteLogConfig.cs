@@ -101,4 +101,7 @@ namespace MatchZy
     }
 }
 
-public record RemoteLogTarget(string Url, string HeaderKey, string HeaderValue);
+namespace MatchZy
+{
+    public record RemoteLogTarget(string Url, string HeaderKey, string HeaderValue);
+}

@@ -8,16 +8,16 @@ namespace MatchZy
     public class MatchConfig
     {
         [JsonPropertyName("maplist")]
-        public List<string> Maplist { get; set; } = new List<string>();
+        public List<string> Maplist { get; set; } = [];
 
         [JsonPropertyName("maps_pool")]
-        public List<string> MapsPool { get; set; } = new List<string>();
+        public List<string> MapsPool { get; set; } = [];
 
         [JsonPropertyName("maps_left_in_veto_pool")]
-        public List<string> MapsLeftInVetoPool { get; set; } = new List<string>();
+        public List<string> MapsLeftInVetoPool { get; set; } = [];
 
         [JsonPropertyName("map_ban_order")]
-        public List<string> MapBanOrder { get; set; } = new List<string>();
+        public List<string> MapBanOrder { get; set; } = [];
 
         [JsonPropertyName("skip_veto")]
         public bool SkipVeto { get; set; } = true;
@@ -41,7 +41,7 @@ namespace MatchZy
         public int CurrentMapNumber { get; set; } = 0;
 
         [JsonPropertyName("map_sides")]
-        public List<string> MapSides { get; set; } = new List<string>();
+        public List<string> MapSides { get; set; } = [];
 
         [JsonPropertyName("series_can_clinch")]
         public bool SeriesCanClinch { get; set; } = true;
@@ -60,10 +60,10 @@ namespace MatchZy
         public string VetoFirst { get; set; } = "team1";
 
         [JsonPropertyName("changed_cvars")]
-        public Dictionary<string, string> ChangedCvars { get; set; } = new();
+        public Dictionary<string, string> ChangedCvars { get; set; } = [];
 
         [JsonPropertyName("original_cvars")]
-        public Dictionary<string, string> OriginalCvars { get; set; } = new();
+        public Dictionary<string, string> OriginalCvars { get; set; } = [];
 
         [JsonPropertyName("spectators")]
         public JToken Spectators { get; set; } = new JObject();

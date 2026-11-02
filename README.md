@@ -1,4 +1,4 @@
-# MatchZy — a customized version for the PopLight website.
+# MatchZy — a customized version 0.9.2 for the PopLight website.
 
 A customized fork of [MatchZy](https://github.com/shobhit-pathak/MatchZy) for **Counter-Strike 2**, developed for use with the **Poplight** project.
 

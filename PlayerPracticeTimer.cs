@@ -9,18 +9,13 @@ public enum PracticeTimerType
     Immediate
 }
 
-public class PlayerPracticeTimer
+public class PlayerPracticeTimer(PracticeTimerType timerType)
 {
     public DateTime StartTime { get; set; }
 
-    public PracticeTimerType TimerType { get; set; }
+    public PracticeTimerType TimerType { get; set; } = timerType;
 
     public CounterStrikeSharp.API.Modules.Timers.Timer? Timer { get; set; }
-
-    public PlayerPracticeTimer(PracticeTimerType timerType)
-    {
-        TimerType = timerType;
-    }
 
     public void DisplayTimerCenter(CCSPlayerController player)
     {

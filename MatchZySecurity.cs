@@ -4,7 +4,7 @@ namespace MatchZy
 {
     // Pure helpers for validating untrusted input and keeping secrets out of logs.
     // This file must not depend on CounterStrikeSharp so that it can be unit tested on its own (see tests/).
-    public static class MatchZySecurity
+    public static partial class MatchZySecurity
     {
         // MatchZy / Get5 console commands that only change a setting and are therefore allowed in a match config's "cvars" block.
         // Commands that perform an action (loading a match or backup, adding players, ending the match, ...) are deliberately not listed.
@@ -45,15 +45,16 @@ namespace MatchZy
             "matchzy_demo_path", "matchzy_demo_name_format",
         };
 
-        private static readonly char[] UnsafeValueChars = { '"', ';', '\r', '\n' };
-        private static readonly Regex CvarNameRegex = new(@"^[A-Za-z0-9_]+$", RegexOptions.Compiled);
+        private static readonly char[] UnsafeValueChars = [ '"', ';', '\r', '\n' ];
+        [GeneratedRegex(@"^[A-Za-z0-9_]+$")]
+        private static partial Regex CvarNameRegex();
 
         // Match configs (and backups built from them) come from outside the server, so only real convars and MatchZy/Get5 settings
         // with a plain value are allowed. Anything else (e.g. "quit", or a value containing a quote or ';') could run console commands.
         public static bool IsAllowedMatchCvar(string name, string value, Func<string, bool> isEngineConVar, ISet<string> pluginFakeConVars, out string reason)
         {
             reason = "";
-            if (string.IsNullOrEmpty(name) || !CvarNameRegex.IsMatch(name))
+            if (string.IsNullOrEmpty(name) || !CvarNameRegex().IsMatch(name))
             {
                 reason = "invalid name";
                 return false;
@@ -98,7 +99,7 @@ namespace MatchZy
         // A value that can safely be wrapped in double quotes in a console command.
         public static bool IsQuotableValue(string value)
         {
-            return value.IndexOfAny(new[] { '"', '\r', '\n' }) < 0;
+            return value.IndexOfAny([ '"', '\r', '\n' ]) < 0;
         }
 
         public static bool IsSecretCvar(string name)
@@ -127,22 +128,22 @@ namespace MatchZy
         public static string RedactConsoleCommand(string commandLine)
         {
             string trimmed = commandLine.Trim();
-            int space = trimmed.IndexOfAny(new[] { ' ', '\t' });
+            int space = trimmed.IndexOfAny([ ' ', '\t' ]);
             string name = space < 0 ? trimmed : trimmed[..space];
             return IsSecretCvar(name) && space >= 0 ? $"{name} <redacted>" : trimmed;
         }
 
-        private static readonly Regex AdminFlagRegex = new(@"^@[a-z0-9_]+/([a-z0-9_]+|\*)$", RegexOptions.Compiled);
+        [GeneratedRegex(@"^@[a-z0-9_]+/([a-z0-9_]+|\*)$")]
+        private static partial Regex AdminFlagRegex();
 
         // MatchZy admins.json values can list CSSharp flags, e.g. "@css/config @css/map" or "@css/config,@css/chat".
         // Only tokens shaped like a flag (@domain/name) count; anything else (a name, a label like "@owner") is ignored.
         public static List<string> GetAdminFlags(string? role)
         {
-            if (string.IsNullOrWhiteSpace(role)) return new();
-            return role.Split(new[] { ',', ';', ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)
+            if (string.IsNullOrWhiteSpace(role)) return [];
+            return [.. role.Split([ ',', ';', ' ', '\t' ], StringSplitOptions.RemoveEmptyEntries)
                 .Select(flag => flag.ToLowerInvariant())
-                .Where(flag => AdminFlagRegex.IsMatch(flag))
-                .ToList();
+                .Where(flag => AdminFlagRegex().IsMatch(flag))];
         }
 
         public static bool AdminFlagsGrant(List<string> adminFlags, IEnumerable<string> requiredPermissions)

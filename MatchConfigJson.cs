@@ -5,8 +5,8 @@ namespace MatchZy
     // Helpers for reading Get5-style match configs. This file must not depend on CounterStrikeSharp so that it can be unit tested (see tests/).
     public static class MatchConfigJson
     {
-        public static readonly string[] SideTypes = { "standard", "always_knife", "never_knife", "random" };
-        public static readonly string[] VetoFirstValues = { "team1", "team2", "random" };
+        public static readonly string[] SideTypes = [ "standard", "always_knife", "never_knife", "random" ];
+        public static readonly string[] VetoFirstValues = [ "team1", "team2", "random" ];
 
         // Get5 accepts true/false as well as 1/0 (as JSON values or strings).
         public static bool TryParseBool(JToken? token, out bool value)
@@ -45,7 +45,7 @@ namespace MatchZy
         public static JObject NormalizeRoster(JToken? token)
         {
             if (token is JObject obj) return obj;
-            JObject normalized = new();
+            JObject normalized = [];
             if (token is JArray array)
             {
                 foreach (JToken item in array)

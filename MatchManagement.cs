@@ -30,8 +30,8 @@ namespace MatchZy
             teamName = "TERRORISTS"
         };
 
-        public Dictionary<Team, string> teamSides = new();
-        public Dictionary<string, Team> reverseTeamSides = new();
+        public Dictionary<Team, string> teamSides = [];
+        public Dictionary<string, Team> reverseTeamSides = [];
 
         [ConsoleCommand("css_team1", "Sets team name for team1")]
         public void OnTeam1Command(CCSPlayerController? player, CommandInfo command) {
@@ -147,7 +147,7 @@ namespace MatchZy
 
         static string ValidateMatchJsonStructure(JObject jsonData)
         {
-            string[] requiredFields = { "maplist", "team1", "team2", "num_maps" };
+            string[] requiredFields = ["maplist", "team1", "team2", "num_maps"];
 
             // Check if any required field is missing
             foreach (string field in requiredFields)
@@ -244,7 +244,7 @@ namespace MatchZy
                         {
                             return $"{field} should be an Array!";
                         }
-                        string[] allowedValues = { "team1_ct", "team1_t", "team2_ct", "team2_t", "knife" };
+                        string[] allowedValues = ["team1_ct", "team1_t", "team2_ct", "team2_t", "knife"];
                         bool allElementsValid = jsonData[field]!.All(element => allowedValues.Contains(element.ToString()));
 
                         if (!allElementsValid) {
@@ -527,7 +527,7 @@ namespace MatchZy
             {
                 if (jsonDataObject["cvars"] == null) return;
 
-                foreach (JProperty cvarData in jsonDataObject["cvars"]!)
+                foreach (JProperty cvarData in jsonDataObject["cvars"]!.Cast<JProperty>())
                 {
                     string cvarName = cvarData.Name;
                     string cvarValue = cvarData.Value.ToString();
@@ -637,7 +637,7 @@ namespace MatchZy
             Server.ExecuteCommand($"mp_teamname_{teamNum} \"{teamName}\";");
         }
 
-        public void SwapSidesInTeamData(bool swapTeams) {
+        public void SwapSidesInTeamData(bool _) {
             // if (swapTeams) {
             //     // Here, we sync matchzyTeam1 and matchzyTeam2 with the actual team1 and team2
             //     (matchzyTeam2, matchzyTeam1) = (matchzyTeam1, matchzyTeam2);
@@ -693,7 +693,7 @@ namespace MatchZy
         // Set by EndSeries until the match is reset: the series is over and must not be ended (or cancelled) again.
         public bool seriesEnded = false;
 
-        public void EndSeries(Team? winner, int restartDelay, int t1score, int t2score, bool cancelled = false, bool warmupCfgRequired = false)
+        public void EndSeries(Team? winner, int restartDelay, int _2, int _3, bool cancelled = false, bool warmupCfgRequired = false)
         {
             StopPoplightMatchClock();
             poplightLastEndedMatchId = liveMatchId;

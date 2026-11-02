@@ -1,19 +1,13 @@
 using System.Text.Json.Serialization;
 
 namespace MatchZy;
-public class Winner
+public class Winner(string side, string team)
 {
     [JsonPropertyName("side")]
-    public string Side { get; set; }
+    public string Side { get; set; } = side;
 
     [JsonPropertyName("team")]
-    public string Team { get; set; }
-
-    public Winner(string side, string team)
-    {
-        Side = side;
-        Team = team;
-    }
+    public string Team { get; set; } = team;
 }
 
 public class StatsPlayer
@@ -131,44 +125,29 @@ public class PlayerStats
     public int Mvps { get; set; }
 }
 
-public class MatchZyTeamWrapper
+public class MatchZyTeamWrapper(string id, string name)
 {
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public string Id { get; set; } = id;
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
-
-    public MatchZyTeamWrapper(string id, string name)
-    {
-        Id = id;
-        Name = name;
-    }
+    public string Name { get; set; } = name;
 }
 
-public class MatchZyStatsTeam : MatchZyTeamWrapper
+public class MatchZyStatsTeam(string id, string name, int seriesScore, int score, int scoreCt, int scoreT, List<StatsPlayer> players) : MatchZyTeamWrapper(id, name)
 {
     [JsonPropertyName("series_score")]
-    public int SeriesScore { get; set; }
+    public int SeriesScore { get; set; } = seriesScore;
 
     [JsonPropertyName("score")]
-    public int Score { get; set; }
+    public int Score { get; set; } = score;
 
     [JsonPropertyName("score_ct")]
-    public int ScoreCT { get; set; }
+    public int ScoreCT { get; set; } = scoreCt;
 
     [JsonPropertyName("score_t")]
-    public int ScoreT { get; set; }
+    public int ScoreT { get; set; } = scoreT;
 
     [JsonPropertyName("players")]
-    public List<StatsPlayer> Players { get; set; }
-
-    public MatchZyStatsTeam(string id, string name, int seriesScore, int score, int scoreCt, int scoreT, List<StatsPlayer> players) : base(id, name)
-    {
-        SeriesScore = seriesScore;
-        Score = score;
-        ScoreCT = scoreCt;
-        ScoreT = scoreT;
-        Players = players;
-    }
+    public List<StatsPlayer> Players { get; set; } = players;
 }

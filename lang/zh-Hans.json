@@ -161,5 +161,6 @@
     "matchzy.pause.pauserequestcanceled": "{green}{0}{default} 取消了暂停请求。",
     "matchzy.pause.unpausedby": "{green}{0}{default} 解除了比赛暂停。",
     "matchzy.pause.techhinttime": "{0} ({1}) 技术暂停{2}。距离任何人可解除暂停还剩: {3}",
-    "matchzy.pause.techhintawaiting": "{0} ({1}) 技术暂停{2}。等待解除暂停。"
+    "matchzy.pause.techhintawaiting": "{0} ({1}) 技术暂停{2}。等待解除暂停。",
+  "matchzy.utility.readyhud": "输入 .ready 或 .rdy"
 }

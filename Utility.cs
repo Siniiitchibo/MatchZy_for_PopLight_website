@@ -67,22 +67,19 @@ namespace MatchZy
                         string jsonContent = fileReader.ReadToEnd();
                         if (!string.IsNullOrEmpty(jsonContent))
                         {
-                            JsonSerializerOptions options = new()
-                            {
-                                AllowTrailingCommas = true,
-                            };
-                            loadedAdmins = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent, options) ?? new Dictionary<string, string>();
+                            JsonSerializerOptions options = MatchZyJsonOptions.AllowTrailingCommas;
+                            loadedAdmins = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent, options) ?? [];
                         }
                         else
                         {
                             // Handle the case where the JSON content is empty or null
-                            loadedAdmins = new Dictionary<string, string>();
+                            loadedAdmins = [];
                         }
                     }
                     foreach (var kvp in loadedAdmins)
                     {
                         Log($"[ADMIN] Username: {kvp.Key}, Role: {kvp.Value}");
-                        if (!string.IsNullOrWhiteSpace(kvp.Value) && MatchZySecurity.GetAdminFlags(kvp.Value).Count == 0 && kvp.Value.IndexOfAny(new[] { '@', '#', '/' }) >= 0)
+                        if (!string.IsNullOrWhiteSpace(kvp.Value) && MatchZySecurity.GetAdminFlags(kvp.Value).Count == 0 && kvp.Value.IndexOfAny([ '@', '#', '/' ]) >= 0)
                         {
                             Log($"[ADMIN WARNING] {kvp.Key}: \"{kvp.Value}\" contains no valid flag (expected e.g. @css/config), so this admin has full MatchZy admin access.");
                         }
@@ -103,10 +100,7 @@ namespace MatchZy
 
                 try
                 {
-                    JsonSerializerOptions options = new()
-                    {
-                        WriteIndented = true,
-                    };
+                    JsonSerializerOptions options = MatchZyJsonOptions.Indented;
                     string defaultJson = JsonSerializer.Serialize(defaultAdmins, options);
                     string? directoryPath = Path.GetDirectoryName(filePath);
                     if (directoryPath != null)
@@ -130,7 +124,7 @@ namespace MatchZy
         private bool IsPlayerAdmin(CCSPlayerController? player, string command = "", params string[] permissions)
         {
             if (everyoneIsAdmin.Value) return true; // Everyone is treated as admin if matchzy_everyone_is_admin is true.
-            string[] updatedPermissions = permissions.Concat(new[] { "@css/root" }).ToArray();
+            string[] updatedPermissions = [.. permissions, "@css/root"];
             RequiresPermissionsOr attr = new(updatedPermissions)
             {
                 Command = command
@@ -165,7 +159,7 @@ namespace MatchZy
                     matchzyTeam2.teamName, GetJoinedPlayerCount(team2Side), GetTeamMinReady(team2Side)]);
                 return;
             }
-            List<string> unreadyPlayers = new();
+            List<string> unreadyPlayers = [];
 
             foreach (var key in playerReadyStatus.Keys)
             {
@@ -228,11 +222,11 @@ namespace MatchZy
             }
         }
 
-        private void PrintWrappedLine(HudDestination destination, string message)
+        private static void PrintWrappedLine(HudDestination destination, string message)
         {
             if (destination != HudDestination.Center)
             {
-                var parts = message.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+                var parts = message.Split([ "\r\n", "\r", "\n" ], StringSplitOptions.None);
                 foreach (var part in parts)
                     Server.PrintToChatAll($" {part}");
             }
@@ -269,7 +263,7 @@ namespace MatchZy
         }
 
         // Kicks every bot except the CSTV/GOTV bot. A bare bot_kick also kicks CSTV, which stops GOTV and the demo recording.
-        public void KickBots()
+        public static void KickBots()
         {
             Server.ExecuteCommand("bot_quota 0"); // Otherwise the kicked bots are added again to fill the quota.
             List<CCSPlayerController> players;
@@ -308,11 +302,11 @@ namespace MatchZy
                     launchCommandLine = Environment.CommandLine;
                 }
             }
-            return launchCommandLine.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)
+            return launchCommandLine.Split([ ' ', '\t' ], StringSplitOptions.RemoveEmptyEntries)
                 .Any(arg => arg.Equals(option, StringComparison.OrdinalIgnoreCase));
         }
 
-        private void ExecWarmupCfg()
+        private static void ExecWarmupCfg()
         {
             KickBots();
             var absolutePath = Path.Join(Server.GameDirectory + "/csgo/cfg", warmupCfgPath);
@@ -346,18 +340,12 @@ namespace MatchZy
         private void StartKnifeRound()
         {
             // Kills unready players message timer
-            if (unreadyPlayerMessageTimer != null)
-            {
-                unreadyPlayerMessageTimer.Kill();
-                unreadyPlayerMessageTimer = null;
-            }
+            unreadyPlayerMessageTimer?.Kill();
+            unreadyPlayerMessageTimer = null;
 
             // Kills unready players hud timer
-            if (unreadyPlayerHudTimer != null)
-            {
-                unreadyPlayerHudTimer.Kill();
-                unreadyPlayerHudTimer = null;
-            }
+            unreadyPlayerHudTimer?.Kill();
+            unreadyPlayerHudTimer = null;
 
             // Setting match phases bools
             matchStarted = true;
@@ -580,10 +568,10 @@ namespace MatchZy
 
                 // Reset owned bots data
                 CancelBotRequests();
-                pracUsedBots = new Dictionary<int, Dictionary<string, object>>();
-                noFlashList = new();
-                lastGrenadesData = new();
-                nadeSpecificLastGrenadeData = new();
+                pracUsedBots = [];
+                noFlashList = [];
+                lastGrenadesData = [];
+                nadeSpecificLastGrenadeData = [];
                 UnpauseMatch();
 
                 matchzyTeam1.teamName = "COUNTER-TERRORISTS";
@@ -601,8 +589,8 @@ namespace MatchZy
                     SetPlayerVisible(coach);
                 }
 
-                matchzyTeam1.coach = new();
-                matchzyTeam2.coach = new();
+                matchzyTeam1.coach = [];
+                matchzyTeam2.coach = [];
                 coachKillTimer?.Kill();
                 coachKillTimer = null;
 
@@ -650,7 +638,7 @@ namespace MatchZy
                 connectedPlayers = 0;
 
                 // Clear the playerData dictionary by creating a new instance to add fresh data.
-                playerData = new Dictionary<int, CCSPlayerController>();
+                playerData = [];
                 foreach (var player in playerEntities)
                 {
                     if (player == null) continue;
@@ -1045,7 +1033,7 @@ namespace MatchZy
 
             // This ensures that the mp_match_restart_delay is not shorter than what is required for the GOTV recording to finish.
             // Ref: Get5
-            int restartDelay = ConVar.Find("mp_match_restart_delay")!.GetPrimitiveValue<int>();
+            int restartDelay = ConVar<int>.Find("mp_match_restart_delay")!.Value;
             int tvDelay = GetTvDelay();
             int requiredDelay = tvDelay + 15;
             int tvFlushDelay = requiredDelay;
@@ -1056,7 +1044,7 @@ namespace MatchZy
             if (requiredDelay > restartDelay)
             {
                 Log($"Extended mp_match_restart_delay from {restartDelay} to {requiredDelay} to ensure GOTV broadcast can finish.");
-                ConVar.Find("mp_match_restart_delay")!.SetValue(requiredDelay);
+                ConVar<int>.Find("mp_match_restart_delay")!.Value = requiredDelay;
                 restartDelay = requiredDelay;
             }
             int currentMapNumber = matchConfig.CurrentMapNumber;
@@ -1196,8 +1184,8 @@ namespace MatchZy
                 MatchId = matchId,
                 MapNumber = mapNumber,
                 Winner = GetTeamWinner(winner),
-                StatsTeam1 = new MatchZyStatsTeam(matchzyTeam1.id, matchzyTeam1.teamName, team1SeriesScore, t1score, 0, 0, new List<StatsPlayer>()),
-                StatsTeam2 = new MatchZyStatsTeam(matchzyTeam2.id, matchzyTeam2.teamName, team2SeriesScore, t2score, 0, 0, new List<StatsPlayer>())
+                StatsTeam1 = new MatchZyStatsTeam(matchzyTeam1.id, matchzyTeam1.teamName, team1SeriesScore, t1score, 0, 0, []),
+                StatsTeam2 = new MatchZyStatsTeam(matchzyTeam2.id, matchzyTeam2.teamName, team2SeriesScore, t2score, 0, 0, [])
             };
 
             Task.Run(async () => await SendEventAsync(mapResultEvent, target));
@@ -1232,7 +1220,7 @@ namespace MatchZy
             return t1score + t2score;
         }
 
-        public void HandlePostRoundStartEvent(EventRoundStart @event)
+        public void HandlePostRoundStartEvent(EventRoundStart _)
         {
             if (isDryRun) RandomizeSpawns();
             if (!matchStarted) return;
@@ -1319,16 +1307,16 @@ namespace MatchZy
             }
         }
 
-        public bool IsTeamSwapRequired()
+        public static bool IsTeamSwapRequired()
         {
             // Handling OTs and side swaps (Referred from Get5)
             var gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
             int roundsPlayed = gameRules.TotalRoundsPlayed;
 
-            int roundsPerHalf = ConVar.Find("mp_maxrounds")!.GetPrimitiveValue<int>() / 2;
-            int roundsPerOTHalf = ConVar.Find("mp_overtime_maxrounds")!.GetPrimitiveValue<int>() / 2;
+            int roundsPerHalf = ConVar<int>.Find("mp_maxrounds")!.Value / 2;
+            int roundsPerOTHalf = ConVar<int>.Find("mp_overtime_maxrounds")!.Value / 2;
 
-            bool halftimeEnabled = ConVar.Find("mp_halftime")!.GetPrimitiveValue<bool>();
+            bool halftimeEnabled = ConVar<bool>.Find("mp_halftime")!.Value;
 
             if (halftimeEnabled)
             {
@@ -1350,7 +1338,7 @@ namespace MatchZy
             return false;
         }
 
-        private void PauseMatch(CCSPlayerController? player, CommandInfo? command)
+        private void PauseMatch(CCSPlayerController? player, CommandInfo? _1)
         {
             if (isMatchLive && isPaused)
             {
@@ -1429,7 +1417,7 @@ namespace MatchZy
             }
         }
 
-        private void ForcePauseMatch(CCSPlayerController? player, CommandInfo? command)
+        private void ForcePauseMatch(CCSPlayerController? player, CommandInfo? _1)
         {
             if (!matchStarted) return;
             if (!IsPlayerAdmin(player, "css_forcepause", "@css/config"))
@@ -1472,7 +1460,7 @@ namespace MatchZy
             StartPauseTracking(PauseType.Admin, 0);
         }
 
-        private void ForceUnpauseMatch(CCSPlayerController? player, CommandInfo? command)
+        private void ForceUnpauseMatch(CCSPlayerController? player, CommandInfo? _1)
         {
             if (matchStarted && isPaused)
             {
@@ -1573,7 +1561,7 @@ namespace MatchZy
 
         // Runs the admin's MatchZy/<name>_override.cfg, if there is one, after MatchZy/<name>.cfg (or after the default CFG
         // when that is missing). Releases don't contain override CFGs, so updates don't overwrite the settings in them.
-        private void ExecOverrideCfg(string cfgPath)
+        private static void ExecOverrideCfg(string cfgPath)
         {
             string overrideCfgPath = OverrideCfgPath(cfgPath);
             if (!File.Exists(Path.Join(Server.GameDirectory + "/csgo/cfg", overrideCfgPath))) return;
@@ -1587,7 +1575,7 @@ namespace MatchZy
             ReplyToUserCommand(player, Localizer["matchzy.utility.dontpermission"]);
         }
 
-        private string GetColorTreatedString(string message)
+        private static string GetColorTreatedString(string message)
         {
             // Adding extra space before args if message starts with a color name
             // This is because colors cannot be applied from 1st character, hence we make first character as an empty space
@@ -1656,7 +1644,7 @@ namespace MatchZy
                 }
             }
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             sb.AppendLine("\"Names\"");
             sb.AppendLine("{");
 
@@ -1669,10 +1657,10 @@ namespace MatchZy
             Server.ExecuteCommand($"sv_load_forced_client_names_file MatchZyPlayerNames/" + namesFileName);
         }
 
-        public void WriteClientNamesInFile(StringBuilder sb, JToken? players)
+        public static void WriteClientNamesInFile(StringBuilder sb, JToken? players)
         {
             if (players == null) return;
-            foreach (JProperty player in players)
+            foreach (JProperty player in players.Cast<JProperty>())
             {
                 string steamId = player.Name;
                 string escapedName = player.Value.ToString().Replace("\"", "\\\"").Trim();
@@ -1692,24 +1680,25 @@ namespace MatchZy
             return false;
         }
 
-        public string GetConvarStringValue(ConVar? cvar)
+        public static string GetConvarStringValue(string name)
         {
             try
             {
+                var cvar = ConVar<string>.Find(name);
                 if (cvar == null) return "";
                 string convarValue = cvar.Type switch
                 {
                     // "1"/"0" and invariant-culture numbers, so the value can be executed as a console command on any server locale.
-                    ConVarType.Bool => cvar.GetPrimitiveValue<bool>() ? "1" : "0",
-                    ConVarType.Float32 => cvar.GetPrimitiveValue<float>().ToString(CultureInfo.InvariantCulture),
-                    ConVarType.Float64 => cvar.GetPrimitiveValue<double>().ToString(CultureInfo.InvariantCulture),
-                    ConVarType.UInt16 => cvar.GetPrimitiveValue<ushort>().ToString(),
-                    ConVarType.Int16 => cvar.GetPrimitiveValue<short>().ToString(),
-                    ConVarType.UInt32 => cvar.GetPrimitiveValue<uint>().ToString(),
-                    ConVarType.Int32 => cvar.GetPrimitiveValue<int>().ToString(),
-                    ConVarType.Int64 => cvar.GetPrimitiveValue<long>().ToString(),
-                    ConVarType.UInt64 => cvar.GetPrimitiveValue<ulong>().ToString(),
-                    ConVarType.String => cvar.StringValue,
+                    ConVarType.Bool => cvar.As<bool>().Value ? "1" : "0",
+                    ConVarType.Float32 => cvar.As<float>().Value.ToString(CultureInfo.InvariantCulture),
+                    ConVarType.Float64 => cvar.As<double>().Value.ToString(CultureInfo.InvariantCulture),
+                    ConVarType.UInt16 => cvar.As<ushort>().Value.ToString(),
+                    ConVarType.Int16 => cvar.As<short>().Value.ToString(),
+                    ConVarType.UInt32 => cvar.As<uint>().Value.ToString(),
+                    ConVarType.Int32 => cvar.As<int>().Value.ToString(),
+                    ConVarType.Int64 => cvar.As<long>().Value.ToString(),
+                    ConVarType.UInt64 => cvar.As<ulong>().Value.ToString(),
+                    ConVarType.String => cvar.As<string>().Value,
                     _ => "",
                 };
                 return convarValue;
@@ -1722,21 +1711,22 @@ namespace MatchZy
 
         }
 
-        public void SetConvarValue(ConVar? cvar, string value)
+        public static void SetConvarValue(string name, string value)
         {
+            var cvar = ConVar<string>.Find(name);
             if (cvar == null) return;
             Dictionary<ConVarType, Action<string>> conversionMap = new()
             {
-                { ConVarType.Bool, v => cvar.SetValue(int.TryParse(v, out int intValue) ? intValue >= 1 : Convert.ToBoolean(v)) },
-                { ConVarType.Float32, v => cvar.SetValue(Convert.ToSingle(v, CultureInfo.InvariantCulture)) },
-                { ConVarType.Float64, v => cvar.SetValue(Convert.ToDouble(v, CultureInfo.InvariantCulture)) },
-                { ConVarType.UInt16, v => cvar.SetValue(Convert.ToUInt16(v)) },
-                { ConVarType.Int16, v => cvar.SetValue(Convert.ToInt16(v)) },
-                { ConVarType.UInt32, v => cvar.SetValue(Convert.ToUInt32(v)) },
-                { ConVarType.Int32, v => cvar.SetValue(Convert.ToInt32(v)) },
-                { ConVarType.Int64, v => cvar.SetValue(Convert.ToInt64(v)) },
-                { ConVarType.UInt64, v => cvar.SetValue(Convert.ToUInt64(v)) },
-                { ConVarType.String, v => cvar.SetValue(v) },
+                { ConVarType.Bool, v => cvar.As<bool>().Value = int.TryParse(v, out int intValue) ? intValue >= 1 : Convert.ToBoolean(v) },
+                { ConVarType.Float32, v => cvar.As<float>().Value = Convert.ToSingle(v, CultureInfo.InvariantCulture) },
+                { ConVarType.Float64, v => cvar.As<double>().Value = Convert.ToDouble(v, CultureInfo.InvariantCulture) },
+                { ConVarType.UInt16, v => cvar.As<ushort>().Value = Convert.ToUInt16(v) },
+                { ConVarType.Int16, v => cvar.As<short>().Value = Convert.ToInt16(v) },
+                { ConVarType.UInt32, v => cvar.As<uint>().Value = Convert.ToUInt32(v) },
+                { ConVarType.Int32, v => cvar.As<int>().Value = Convert.ToInt32(v) },
+                { ConVarType.Int64, v => cvar.As<long>().Value = Convert.ToInt64(v) },
+                { ConVarType.UInt64, v => cvar.As<ulong>().Value = Convert.ToUInt64(v) },
+                { ConVarType.String, v => cvar.As<string>().Value = v },
             };
 
             if (conversionMap.TryGetValue(cvar.Type, out var conversion))
@@ -1762,7 +1752,7 @@ namespace MatchZy
 
         public bool IsAllowedMatchCvar(string name, string value, out string reason)
         {
-            return MatchZySecurity.IsAllowedMatchCvar(name, value, cvarName => ConVar.Find(cvarName) != null, GetMatchZyFakeConVarNames(), out reason);
+            return MatchZySecurity.IsAllowedMatchCvar(name, value, cvarName => ConVar<string>.Find(cvarName) != null, GetMatchZyFakeConVarNames(), out reason);
         }
 
         public void ExecuteChangedConvars()
@@ -1822,7 +1812,7 @@ namespace MatchZy
                 {
                     // A value that cannot be quoted safely is set directly instead of through the console.
                     Log($"[ResetChangedConvars] Setting {key} to {loggedValue} directly");
-                    SetConvarValue(ConVar.Find(key), value);
+                    SetConvarValue(key, value);
                 }
             }
         }
@@ -1853,17 +1843,17 @@ namespace MatchZy
             Server.ExecuteCommand($"hostname {formattedHostname}");
         }
 
-        public CCSGameRules GetGameRules()
+        public static CCSGameRules GetGameRules()
         {
             return Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
         }
 
-        public int GetGamePhase()
+        public static int GetGamePhase()
         {
             return GetGameRules().GamePhase;
         }
 
-        public bool IsHalfTimePhase()
+        public static bool IsHalfTimePhase()
         {
             try
             {
@@ -1877,7 +1867,7 @@ namespace MatchZy
 
         }
 
-        public bool IsPostGamePhase()
+        public static bool IsPostGamePhase()
         {
             try
             {
@@ -1891,7 +1881,7 @@ namespace MatchZy
 
         }
 
-        public bool IsTacticalTimeoutActive()
+        public static bool IsTacticalTimeoutActive()
         {
             var gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
 
@@ -1900,9 +1890,9 @@ namespace MatchZy
 
         public (Dictionary<ulong, Dictionary<string, object>>, List<StatsPlayer>, List<StatsPlayer>) GetPlayerStatsDict()
         {
-            Dictionary<ulong, Dictionary<string, object>> playerStatsDictionary = new Dictionary<ulong, Dictionary<string, object>>();
-            List<StatsPlayer> playerStatsListTeam1 = new();
-            List<StatsPlayer> playerStatsListTeam2 = new();
+            Dictionary<ulong, Dictionary<string, object>> playerStatsDictionary = [];
+            List<StatsPlayer> playerStatsListTeam1 = [];
+            List<StatsPlayer> playerStatsListTeam2 = [];
             var gameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
             int roundsPlayed = gameRules.TotalRoundsPlayed;
             try
@@ -1916,7 +1906,7 @@ namespace MatchZy
                     ulong steamid64 = player.SteamID;
 
                     // Create a nested dictionary to store individual stats for the player
-                    Dictionary<string, object> stats = new Dictionary<string, object>
+                    Dictionary<string, object> stats = new()
                     {
                         { "PlayerName", player.PlayerName },
                         { "Kills", playerStats.Kills },
@@ -2037,11 +2027,11 @@ namespace MatchZy
 
         static string RemoveSpecialCharacters(string input)
         {
-            Regex regex = new("[^\\p{L}0-9 _-]");
+            Regex regex = PlayerNameRegex();
             return regex.Replace(input, "");
         }
 
-        private void Log(string message)
+        private static void Log(string message)
         {
             Console.WriteLine("[MatchZy] " + message);
         }
@@ -2065,33 +2055,33 @@ namespace MatchZy
             }
         }
 
-        public int GetGameMode()
+        public static int GetGameMode()
         {
-            var convar = ConVar.Find("game_mode");
+            var convar = ConVar<int>.Find("game_mode");
             if (convar != null)
             {
-                return convar.GetPrimitiveValue<int>();
+                return convar.Value;
             }
             return -1;
         }
 
-        public int GetGameType()
+        public static int GetGameType()
         {
-            var convar = ConVar.Find("game_type");
+            var convar = ConVar<int>.Find("game_type");
             if (convar != null)
             {
-                return convar.GetPrimitiveValue<int>();
+                return convar.Value;
             }
             return -1;
         }
 
         public void SetCorrectGameMode()
         {
-            ConVar.Find("game_mode")!.SetValue(matchConfig.Wingman ? 2 : 1);
-            ConVar.Find("game_type")!.SetValue(0); // Classic GameType
+            ConVar<int>.Find("game_mode")!.Value = matchConfig.Wingman ? 2 : 1;
+            ConVar<int>.Find("game_type")!.Value = 0; // Classic GameType
         }
 
-        public bool IsMapReloadRequiredForGameMode(bool wingman)
+        public static bool IsMapReloadRequiredForGameMode(bool wingman)
         {
             int expectedMode = wingman ? 2 : 1;
             if (GetGameMode() != expectedMode || GetGameType() != 0)
@@ -2101,13 +2091,13 @@ namespace MatchZy
             return false;
         }
 
-        public bool IsWingmanMode()
+        public static bool IsWingmanMode()
         {
             if (GetGameMode() == 2 && GetGameType() == 0) return true;
             return false;
         }
 
-        public void KickPlayer(CCSPlayerController player)
+        public static void KickPlayer(CCSPlayerController player)
         {
             if (player.UserId.HasValue)
             {
@@ -2115,7 +2105,7 @@ namespace MatchZy
             }
         }
 
-        public bool IsPlayerValid(CCSPlayerController? player)
+        public static bool IsPlayerValid(CCSPlayerController? player)
         {
             return (
                 player != null &&
@@ -2244,7 +2234,7 @@ namespace MatchZy
                     Directory.CreateDirectory(directoryPath);
                 }
             }
-            if (!File.Exists(whitelistPath)) File.WriteAllLines(whitelistPath, new[] { "Steamid1", "Steamid2" });
+            if (!File.Exists(whitelistPath)) File.WriteAllLines(whitelistPath, [ "Steamid1", "Steamid2" ]);
 
             var whiteList = File.ReadAllLines(whitelistPath);
 
@@ -2264,7 +2254,7 @@ namespace MatchZy
 
         // team is the player's team in the loaded match (GetPlayerTeam). A player who is not in the match (CsTeam.None) is moved
         // to spectator: SwitchTeam(None) can crash the server.
-        public void SwitchPlayerTeam(CCSPlayerController player, CsTeam team)
+        public static void SwitchPlayerTeam(CCSPlayerController player, CsTeam team)
         {
             if (team == CsTeam.None) team = CsTeam.Spectator;
             if (player.Team == team) return;
@@ -2301,7 +2291,7 @@ namespace MatchZy
             });
         }
 
-        public void SetPlayerInvisible(CCSPlayerController player, bool setWeaponsInvisible)
+        public static void SetPlayerInvisible(CCSPlayerController player, bool setWeaponsInvisible)
         {
             if (!IsPlayerValid(player)) return;
             var playerPawnValue = player.PlayerPawn.Value;
@@ -2338,7 +2328,7 @@ namespace MatchZy
             }
         }
 
-        public void SetPlayerVisible(CCSPlayerController player)
+        public static void SetPlayerVisible(CCSPlayerController player)
         {
             if (!IsPlayerValid(player)) return;
 
@@ -2350,7 +2340,7 @@ namespace MatchZy
             Utilities.SetStateChanged(playerPawnValue, "CBaseModelEntity", "m_clrRender");
         }
 
-        public void DropWeaponByDesignerName(CCSPlayerController player, string weaponName)
+        public static void DropWeaponByDesignerName(CCSPlayerController player, string weaponName)
         {
             if (!IsPlayerValid(player) || player.PlayerPawn.Value!.WeaponServices is null) return;
             var matchedWeapon = player.PlayerPawn.Value!.WeaponServices!.MyWeapons

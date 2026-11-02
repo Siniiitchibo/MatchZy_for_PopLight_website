@@ -161,5 +161,6 @@
   "matchzy.pause.pauserequestcanceled": "{green}{0}{default} cancelou o pedido de pause.",
   "matchzy.pause.unpausedby": "{green}{0}{default} despausou o jogo.",
   "matchzy.pause.techhinttime": "Pause técnico de {0} ({1}){2}. Tempo restante até qualquer um poder despausar: {3}",
-  "matchzy.pause.techhintawaiting": "Pause técnico de {0} ({1}){2}. Aguardando despause."
+  "matchzy.pause.techhintawaiting": "Pause técnico de {0} ({1}){2}. Aguardando despause.",
+  "matchzy.utility.readyhud": "Digite .ready ou .rdy"
 }

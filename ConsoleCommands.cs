@@ -76,11 +76,11 @@ namespace MatchZy
             {
                 if (player.UserId.HasValue)
                 {
-                    if (!playerReadyStatus.ContainsKey(player.UserId.Value))
+                    if (!playerReadyStatus.TryGetValue(player.UserId.Value, out bool wasReady))
                     {
                         playerReadyStatus[player.UserId.Value] = false;
                     }
-                    if (playerReadyStatus[player.UserId.Value])
+                    if (wasReady)
                     {
                         // player.PrintToChat($"{chatPrefix} You are already ready!");
                         PrintToPlayerChat(player, Localizer["matchzy.ready.markedready"]);
@@ -113,11 +113,11 @@ namespace MatchZy
             {
                 if (player.UserId.HasValue)
                 {
-                    if (!playerReadyStatus.ContainsKey(player.UserId.Value))
+                    if (!playerReadyStatus.TryGetValue(player.UserId.Value, out bool wasReady))
                     {
                         playerReadyStatus[player.UserId.Value] = false;
                     }
-                    if (!playerReadyStatus[player.UserId.Value])
+                    if (!wasReady)
                     {
                         PrintToPlayerChat(player, Localizer["matchzy.ready.markedunready"]);
                     }
@@ -260,8 +260,9 @@ namespace MatchZy
                     if (HandleTechPauseUnpause(player, unpausingTeam == matchzyTeam1 ? 1 : 2)) return;
                 }
 
-                string unpauseTeamName = "Admin";
-                string remainingUnpauseTeam = "Admin";
+                string unpauseTeamName;
+
+                string remainingUnpauseTeam;
                 if (player?.TeamNum == 2)
                 {
                     unpauseTeamName = reverseTeamSides["TERRORIST"].teamName;
@@ -679,7 +680,7 @@ namespace MatchZy
         }
 
         [ConsoleCommand("css_exitprac", "Starts match mode")]
-        public void OnExitPracCommand(CCSPlayerController? player, CommandInfo? command)
+        public void OnExitPracCommand(CCSPlayerController? player, CommandInfo? _1)
         {
             if (!IsPlayerAdmin(player, "css_exitprac", "@css/map", "@custom/prac"))
             {
@@ -745,8 +746,7 @@ namespace MatchZy
             }
         }
 
-        [ConsoleCommand("version", "Returns server version")]
-        public void OnVersionCommand(CCSPlayerController? player, CommandInfo? command)
+        public static void OnVersionCommand(CCSPlayerController? player, CommandInfo? command)
         {
             if (command == null) return;
             string steamInfFilePath = Path.Combine(Server.GameDirectory, "csgo", "steam.inf");
@@ -757,7 +757,7 @@ namespace MatchZy
             }
             var steamInfContent = File.ReadAllText(steamInfFilePath);
 
-            Regex regex = new(@"ServerVersion=(\d+)");
+            Regex regex = ServerVersionRegex();
             Match match = regex.Match(steamInfContent);
 
             // Extract the version number
@@ -768,10 +768,10 @@ namespace MatchZy
         }
 
         // Overrides noclip console command. Perform the changes on server side.
-        public HookResult OnConsoleNoClip(CCSPlayerController? player, CommandInfo? cmd) {
+        public static HookResult OnConsoleNoClip(CCSPlayerController? player, CommandInfo? cmd) {
             if (player == null || !player.PawnIsAlive || player.Team == CsTeam.Spectator || player.Team == CsTeam.None)
                 return HookResult.Stop;
-            bool cheatsEnabled = ConVar.Find("sv_cheats")!.GetPrimitiveValue<bool>();
+            bool cheatsEnabled = ConVar<bool>.Find("sv_cheats")!.Value;
             if (!cheatsEnabled) {
                 return HookResult.Stop;
             }

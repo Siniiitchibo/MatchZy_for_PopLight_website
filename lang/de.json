@@ -161,5 +161,6 @@
     "matchzy.pause.pauserequestcanceled": "{green}{0}{default} hat die Pausenanfrage zurückgezogen.",
     "matchzy.pause.unpausedby": "{green}{0}{default} hat die Pause beendet.",
     "matchzy.pause.techhinttime": "{0} ({1}) technische Pause{2}. Verbleibende Zeit, bis jeder die Pause beenden kann: {3}",
-    "matchzy.pause.techhintawaiting": "{0} ({1}) technische Pause{2}. Warte auf Fortsetzung."
+    "matchzy.pause.techhintawaiting": "{0} ({1}) technische Pause{2}. Warte auf Fortsetzung.",
+  "matchzy.utility.readyhud": "Schreibe .ready oder .rdy"
 }

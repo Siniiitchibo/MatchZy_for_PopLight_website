@@ -1,6 +1,7 @@
 obj/*
 bin/*
 /.vs
-MatchZy.sln
+MatchZy.slnx
+MatchZy.csproj.user
 tests/**/bin/
 tests/**/obj/

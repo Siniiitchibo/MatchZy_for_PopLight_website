@@ -161,5 +161,6 @@
   "matchzy.pause.pauserequestcanceled": "{green}{0}{default} pauza soʻrovini bekor qildi.",
   "matchzy.pause.unpausedby": "{green}{0}{default} oʻyinni davom ettirdi.",
   "matchzy.pause.techhinttime": "{0} ({1}) texnik pauza{2}. Istalgan kishi davom ettira olishiga qolgan vaqt: {3}",
-  "matchzy.pause.techhintawaiting": "{0} ({1}) texnik pauza{2}. Davom ettirish kutilmoqda."
+  "matchzy.pause.techhintawaiting": "{0} ({1}) texnik pauza{2}. Davom ettirish kutilmoqda.",
+  "matchzy.utility.readyhud": ".ready yoki .rdy deb yozing"
 }

@@ -6,7 +6,7 @@ namespace MatchZy
 {
     public partial class MatchZy
     {
-        // A MatchZy setting that is a console command (not a convar), so its value cannot be read with ConVar.Find.
+        // A MatchZy setting that is a console command (not a convar), so its value cannot be read with ConVar<T>.Find.
         // IsValid: checks a value before Set (restored values can come from a backup file).
         private record PluginSetting(Func<string> Get, Action<string> Set, Func<string, bool>? IsValid = null);
 
@@ -101,8 +101,8 @@ namespace MatchZy
         private string? GetCurrentSettingValue(string name)
         {
             if (GetPluginSettings().TryGetValue(name, out var setting)) return setting.Get();
-            ConVar? cvar = ConVar.Find(name);
-            if (cvar != null) return GetConvarStringValue(cvar);
+            var cvar = ConVar<string>.Find(name);
+            if (cvar != null) return GetConvarStringValue(name);
             return GetFakeConVarValue(name);
         }
 

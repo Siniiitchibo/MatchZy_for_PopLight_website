@@ -122,28 +122,27 @@ namespace MatchZy
 
         public void PromptForMapSelectionInChat(string option) {
             string action = "";
-            int client = -1;
             string stepMessage = "";
             switch (option) 
             {
                 case "team1_ban":
                     action = $"{ChatColors.Green}{matchzyTeam1.teamName}{ChatColors.Default} must now {ChatColors.Red}BAN{ChatColors.Default} a map.";
-                    client = vetoCaptains["team1"];
+                    _ = vetoCaptains["team1"];
                     stepMessage = $"Use .ban <map> to ban a map";
                     break;
                 case "team2_ban":
                     action = $"{ChatColors.Green}{matchzyTeam2.teamName}{ChatColors.Default} must now {ChatColors.Red}BAN{ChatColors.Default} a map.";
-                    client = vetoCaptains["team2"];
+                    _ = vetoCaptains["team2"];
                     stepMessage = $"Use .ban <map> to ban a map";
                     break;                                                       
                 case "team1_pick":
                     action = $"{ChatColors.Green}{matchzyTeam1.teamName}{ChatColors.Default} must now {ChatColors.Green}PICK{ChatColors.Default} a map to play as map {matchConfig.Maplist.Count + 1}.";
-                    client = vetoCaptains["team1"];
+                    _ = vetoCaptains["team1"];
                     stepMessage = $"Use .pick <map> to pick a map.";
                     break;
                 case "team2_pick":
                     action = $"{ChatColors.Green}{matchzyTeam2.teamName}{ChatColors.Default} must now {ChatColors.Green}PICK{ChatColors.Default} a map to play as map {matchConfig.Maplist.Count + 1}.";
-                    client = vetoCaptains["team2"];
+                    _ = vetoCaptains["team2"];
                     stepMessage = $"Use .pick <map> to pick a map.";
                     break;
             }
@@ -153,7 +152,7 @@ namespace MatchZy
                 return;
             }
             string captainTeam = option.StartsWith("team1") ? "team1" : "team2";
-            client = EnsureVetoCaptain(captainTeam);
+            int client = EnsureVetoCaptain(captainTeam);
             if (client == -1)
             {
                 Log($"[PromptForMapSelectionInChat] No player left on {captainTeam} to continue the veto, aborting it.");

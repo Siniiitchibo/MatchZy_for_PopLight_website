@@ -12,13 +12,13 @@ using CounterStrikeSharp.API.Modules.Events;
 
 namespace MatchZy
 {
-    [MinimumApiVersion(227)]
+    [MinimumApiVersion(379)]
     public partial class MatchZy : BasePlugin
     {
 
         public override string ModuleName => "poplight-MatchZy(0.9.2)";
 
-        public override string ModuleVersion => "0.1.8";
+        public override string ModuleVersion => "0.1.9";
 
         public override string ModuleAuthor => "WD- / Siniii_tchibo (https://github.com/Siniiitchibo/)";
 
@@ -43,7 +43,8 @@ namespace MatchZy
 
         // Pause Data
         public bool isPaused = false;
-        public Dictionary<string, object> unpauseData = new Dictionary<string, object> {
+        public Dictionary<string, object> unpauseData = new()
+        {
             { "ct", false },
             { "t", false },
             { "pauseTeam", "" }
@@ -57,11 +58,11 @@ namespace MatchZy
 
         // Players Data (including admins)
         public int connectedPlayers = 0;
-        private Dictionary<int, bool> playerReadyStatus = new Dictionary<int, bool>();
-        private Dictionary<int, CCSPlayerController> playerData = new Dictionary<int, CCSPlayerController>();
+        private readonly Dictionary<int, bool> playerReadyStatus = [];
+        private Dictionary<int, CCSPlayerController> playerData = [];
 
         // Admin Data
-        private Dictionary<string, string> loadedAdmins = new Dictionary<string, string>();
+        private Dictionary<string, string> loadedAdmins = [];
 
         // Timers
         public CounterStrikeSharp.API.Modules.Timers.Timer? unreadyPlayerMessageTimer = null;
@@ -88,7 +89,7 @@ namespace MatchZy
         public Dictionary<string, Action<CCSPlayerController?, CommandInfo?>>? commandActions;
 
         // SQLite/MySQL Database 
-        private Database database = new();
+        private readonly Database database = new();
     
         private HashSet<string>? registeredCssCommands;
 
@@ -96,11 +97,10 @@ namespace MatchZy
         private HashSet<string> GetRegisteredCssCommands()
         {
             if (registeredCssCommands != null) return registeredCssCommands;
-            registeredCssCommands = GetType()
+            registeredCssCommands = [.. GetType()
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .SelectMany(method => method.GetCustomAttributes<ConsoleCommandAttribute>())
-                .Select(attribute => attribute.Command.ToLowerInvariant())
-                .ToHashSet();
+                .Select(attribute => attribute.Command.ToLowerInvariant())];
             return registeredCssCommands;
         }
 
@@ -400,6 +400,7 @@ namespace MatchZy
                 return HookResult.Continue;
             });
 
+            AddCommand("version", "Returns server version", OnVersionCommand);
             AddCommandListener("noclip", OnConsoleNoClip); // Override noclip
 
             RegisterEventHandler<EventRoundEnd>((@event, info) => 
@@ -547,8 +548,8 @@ namespace MatchZy
                 }
 
                 // Handling player commands
-                if (commandActions.ContainsKey(message)) {
-                    commandActions[message](player, null);
+                if (commandActions.TryGetValue(message, out var lookupValue1)) {
+                    lookupValue1(player, null);
                 }
 
                 // .forceend / .endmatch with a winner (without one they are handled by commandActions above).

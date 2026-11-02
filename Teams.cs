@@ -64,7 +64,7 @@ namespace MatchZy
                 return;
             }
 
-            if (player.InGameMoneyServices != null) player.InGameMoneyServices.Account = 0;
+            player.InGameMoneyServices?.Account = 0;
 
             ReplyToUserCommand(player, "You are now not coaching any team!");
         }

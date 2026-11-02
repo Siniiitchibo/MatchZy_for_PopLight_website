@@ -82,7 +82,7 @@ public partial class MatchZy
         return 0;
     }
 
-    public (int, int) GetTeamPlayerCount(int team, bool includeCoaches = false)
+    public (int, int) GetTeamPlayerCount(int team, bool _1 = false)
     {
         int playerCount = 0;
         int readyCount = 0;
@@ -108,7 +108,7 @@ public partial class MatchZy
         if (!readyAvailable || !isMatchSetup || !allowForceReady || !IsPlayerValid(player)) return;
 
         int minReady = GetTeamMinReady(player!.TeamNum);
-        (int playerCount, int readyCount) = GetTeamPlayerCount(player!.TeamNum, false);
+        (int playerCount, _) = GetTeamPlayerCount(player!.TeamNum, false);
 
         if (playerCount < minReady) 
         {

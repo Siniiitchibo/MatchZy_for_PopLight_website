@@ -3,41 +3,27 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchZy;
-public class GrenadeThrownData
+public class GrenadeThrownData(Vector nadePosition, QAngle nadeAngle, Vector nadeVelocity, Vector nadeAngularVelocity, Vector playerPosition, QAngle playerAngle, string grenadeType, DateTime thrownTime, UInt16 itemIndex)
 {
-    public Vector Position { get; private set; }
+    public Vector Position { get; private set; } = new Vector(nadePosition.X, nadePosition.Y, nadePosition.Z);
 
-    public QAngle Angle { get; private set; }
+    public QAngle Angle { get; private set; } = new QAngle(nadeAngle.X, nadeAngle.Y, nadeAngle.Z);
 
-    public Vector Velocity { get; private set; }
+    public Vector Velocity { get; private set; } = new Vector(nadeVelocity.X, nadeVelocity.Y, nadeVelocity.Z);
 
-    public Vector AngularVelocity { get; private set; }
+    public Vector AngularVelocity { get; private set; } = new Vector(nadeAngularVelocity.X, nadeAngularVelocity.Y, nadeAngularVelocity.Z);
 
-    public Vector PlayerPosition { get; private set; }
+    public Vector PlayerPosition { get; private set; } = new Vector(playerPosition.X, playerPosition.Y, playerPosition.Z);
 
-    public QAngle PlayerAngle { get; private set; }
+    public QAngle PlayerAngle { get; private set; } = new QAngle(playerAngle.X, playerAngle.Y, playerAngle.Z);
 
-    public string Type { get; private set; }
+    public string Type { get; private set; } = grenadeType;
 
-    public DateTime ThrownTime { get; private set; }
+    public DateTime ThrownTime { get; private set; } = thrownTime;
 
-    public float Delay { get; set; }
+    public float Delay { get; set; } = 0;
 
-    public UInt16 ItemIndex { get; set; }
-
-    public GrenadeThrownData(Vector nadePosition, QAngle nadeAngle, Vector nadeVelocity, Vector nadeAngularVelocity, Vector playerPosition, QAngle playerAngle, string grenadeType, DateTime thrownTime, UInt16 itemIndex)
-    {
-        Position = new Vector(nadePosition.X, nadePosition.Y, nadePosition.Z);
-        Angle = new QAngle(nadeAngle.X, nadeAngle.Y, nadeAngle.Z);
-        Velocity = new Vector(nadeVelocity.X, nadeVelocity.Y, nadeVelocity.Z);
-        AngularVelocity = new Vector(nadeAngularVelocity.X, nadeAngularVelocity.Y, nadeAngularVelocity.Z);
-        PlayerPosition = new Vector(playerPosition.X, playerPosition.Y, playerPosition.Z);
-        PlayerAngle = new QAngle(playerAngle.X, playerAngle.Y, playerAngle.Z);
-        Type = grenadeType;
-        ThrownTime = thrownTime;
-        Delay = 0;
-        ItemIndex = itemIndex;
-    }
+    public UInt16 ItemIndex { get; set; } = itemIndex;
 
     // Returns false when the player was not moved (dead or not on T/CT).
     public bool LoadPosition(CCSPlayerController player)

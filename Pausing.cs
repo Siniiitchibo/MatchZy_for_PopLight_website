@@ -150,7 +150,7 @@ public partial class MatchZy
     }
 
     // .unpause during a technical pause, before the both-teams rule (Get5: Command_Unpause). Returns true when handled.
-    private bool HandleTechPauseUnpause(CCSPlayerController player, int teamNumber)
+    private bool HandleTechPauseUnpause(CCSPlayerController _, int teamNumber)
     {
         if (currentPauseType != PauseType.Technical) return false;
         Team? team = GetTeamByNumber(teamNumber);

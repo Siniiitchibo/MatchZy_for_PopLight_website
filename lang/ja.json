@@ -161,5 +161,6 @@
   "matchzy.pause.pauserequestcanceled": "{green}{0}{default} が一時停止のリクエストを取り消しました。",
   "matchzy.pause.unpausedby": "{green}{0}{default} が試合を再開しました。",
   "matchzy.pause.techhinttime": "{0} ({1}) のテクニカルポーズ{2}。誰でも再開できるまで残り: {3}",
-  "matchzy.pause.techhintawaiting": "{0} ({1}) のテクニカルポーズ{2}。再開待ちです。"
+  "matchzy.pause.techhintawaiting": "{0} ({1}) のテクニカルポーズ{2}。再開待ちです。",
+  "matchzy.utility.readyhud": ".ready または .rdy と入力してください"
 }

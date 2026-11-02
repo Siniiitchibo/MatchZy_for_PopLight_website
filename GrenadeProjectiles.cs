@@ -10,7 +10,7 @@ namespace MatchZy;
 // longer matches gives null, and GrenadeThrownData.Throw then creates the projectile through the entity API instead.
 public static class GrenadeFunctions
 {
-    private static readonly HashSet<string> warnedKeys = new();
+    private static readonly HashSet<string> warnedKeys = [];
 
     private static T? Resolve<T>(string gameDataKey, Func<string, T> create) where T : BaseMemoryFunction
     {

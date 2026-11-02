@@ -84,23 +84,20 @@ public partial class MatchZy
             if (!player.UserId.HasValue) return HookResult.Continue;
             int userId = player.UserId.Value;
 
-            if (playerReadyStatus.ContainsKey(userId))
+            if (playerReadyStatus.Remove(userId))
             {
-                playerReadyStatus.Remove(userId);
                 connectedPlayers--;
             }
             playerData.Remove(userId);
             pracUsedBots.Remove(userId);
 
-            if (matchzyTeam1.coach.Contains(player))
+            if (matchzyTeam1.coach.Remove(player))
             {
-                matchzyTeam1.coach.Remove(player);
                 SetPlayerVisible(player);
                 player.Clan = "";
             }
-            else if (matchzyTeam2.coach.Contains(player))
+            else if (matchzyTeam2.coach.Remove(player))
             {
-                matchzyTeam2.coach.Remove(player);
                 SetPlayerVisible(player);
                 player.Clan = "";
             }
@@ -125,7 +122,7 @@ public partial class MatchZy
         }
     }
 
-    public HookResult EventCsWinPanelRoundHandler(EventCsWinPanelRound @event, GameEventInfo info)
+    public static HookResult EventCsWinPanelRoundHandler(EventCsWinPanelRound @event, GameEventInfo info)
     {
         // EventCsWinPanelRound has stopped firing after Arms Race update, hence we handle knife round winner in EventRoundEnd.
 
@@ -315,8 +312,8 @@ public partial class MatchZy
     {
         GrenadeThrownData lastGrenadeThrown = new(position, angle, velocity, angularVelocity, playerPosition, playerAngle, nadeType, DateTime.Now, itemIndex);
 
-        if (!lastGrenadesData.ContainsKey(client)) lastGrenadesData[client] = new();
-        if (!nadeSpecificLastGrenadeData.ContainsKey(client)) nadeSpecificLastGrenadeData[client] = new();
+        if (!lastGrenadesData.ContainsKey(client)) lastGrenadesData[client] = [];
+        if (!nadeSpecificLastGrenadeData.ContainsKey(client)) nadeSpecificLastGrenadeData[client] = [];
 
         nadeSpecificLastGrenadeData[client][nadeType] = lastGrenadeThrown;
         lastGrenadesData[client].Add(lastGrenadeThrown);

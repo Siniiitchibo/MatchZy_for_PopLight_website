@@ -6,7 +6,7 @@ namespace MatchZy
     // are counted from the bomb events, as in Get5, and stored in round backups so a round restore rolls them back too.
     public class BombStats
     {
-        private readonly Dictionary<ulong, int[]> counts = new();
+        private readonly Dictionary<ulong, int[]> counts = [];
 
         public void AddPlant(ulong steamId) => Get(steamId)[0]++;
         public void AddDefuse(ulong steamId) => Get(steamId)[1]++;
@@ -35,7 +35,7 @@ namespace MatchZy
                 foreach (var (key, value) in parsed)
                 {
                     if (!ulong.TryParse(key, out ulong steamId) || value == null || value.Length != 2 || value[0] < 0 || value[1] < 0) return false;
-                    loaded[steamId] = new[] { value[0], value[1] };
+                    loaded[steamId] = [ value[0], value[1] ];
                 }
                 counts.Clear();
                 foreach (var (key, value) in loaded) counts[key] = value;

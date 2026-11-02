@@ -161,5 +161,6 @@
     "matchzy.pause.pauserequestcanceled": "{green}{0}{default} a annulé sa demande de pause.",
     "matchzy.pause.unpausedby": "{green}{0}{default} a repris le match.",
     "matchzy.pause.techhinttime": "{0} ({1}) pause technique{2}. Temps restant avant que tout le monde puisse reprendre : {3}",
-    "matchzy.pause.techhintawaiting": "{0} ({1}) pause technique{2}. En attente de la reprise."
+    "matchzy.pause.techhintawaiting": "{0} ({1}) pause technique{2}. En attente de la reprise.",
+  "matchzy.utility.readyhud": "Tape .ready ou .rdy"
 }

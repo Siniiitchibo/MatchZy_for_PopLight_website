@@ -161,5 +161,6 @@
   "matchzy.pause.pauserequestcanceled": "{green}{0}{default} ha cancelado su petición de pausa.",
   "matchzy.pause.unpausedby": "{green}{0}{default} ha reanudado la partida.",
   "matchzy.pause.techhinttime": "Pausa técnica de {0} ({1}){2}. Tiempo restante hasta que cualquiera pueda reanudar: {3}",
-  "matchzy.pause.techhintawaiting": "Pausa técnica de {0} ({1}){2}. Esperando la reanudación."
+  "matchzy.pause.techhintawaiting": "Pausa técnica de {0} ({1}){2}. Esperando la reanudación.",
+  "matchzy.utility.readyhud": "Escribe .ready o .rdy"
 }

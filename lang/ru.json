@@ -150,5 +150,6 @@
     "matchzy.pause.pauserequestcanceled": "{green}{0}{default} отменила запрос на паузу.",
     "matchzy.pause.unpausedby": "{green}{0}{default} сняла матч с паузы.",
     "matchzy.pause.techhinttime": "{0} ({1}): техническая пауза{2}. До снятия паузы любым игроком: {3}",
-    "matchzy.pause.techhintawaiting": "{0} ({1}): техническая пауза{2}. Ожидание снятия паузы."
+    "matchzy.pause.techhintawaiting": "{0} ({1}): техническая пауза{2}. Ожидание снятия паузы.",
+  "matchzy.utility.readyhud": "Напиши .ready или .rdy"
 }

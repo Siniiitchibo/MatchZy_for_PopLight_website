@@ -10,7 +10,6 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory;
 using CsvHelper;
-using CsvHelper.Configuration;
 using MySqlConnector;
 
 
@@ -25,7 +24,7 @@ namespace MatchZy
         // Writes run one after another, in the order they were requested, each on its own (pooled) connection.
         // A single shared connection used by overlapping writes lost data, and callers that queued their write after an
         // HTTP request could have it land out of order (e.g. the map CSV exported before the last round's stats).
-        private readonly object writeQueueLock = new();
+        private readonly Lock writeQueueLock = new();
         private Task writeQueueTail = Task.CompletedTask;
 
         private DbConnection OpenConnection()
@@ -66,7 +65,7 @@ namespace MatchZy
         }
 
         DatabaseConfig? config;
-        public DatabaseType databaseType { get; set; }
+        public DatabaseType SelectedDatabaseType { get; set; }
 
         public void InitializeDatabase(string directory)
         {
@@ -109,16 +108,16 @@ namespace MatchZy
         {
             try
             {
-                SetDatabaseConfig(directory);
+                SetDatabaseConfig();
 
                 // Default Timeout: how long SQLite waits for another connection's write to finish instead of failing.
                 string sqliteConnectionString = $"Data Source={Path.Join(directory, "matchzy.db")};Default Timeout=30;Pooling=True";
-                if (databaseType == DatabaseType.SQLite)
+                if (SelectedDatabaseType == DatabaseType.SQLite)
                 {
                     connectionString = sqliteConnectionString;
                     isSqlite = true;
                 }
-                else if (config != null && databaseType == DatabaseType.MySQL)
+                else if (config != null && SelectedDatabaseType == DatabaseType.MySQL)
                 {
                     connectionString = $"Server={config.MySqlHost};Port={config.MySqlPort};Database={config.MySqlDatabase};User Id={config.MySqlUsername};Password={config.MySqlPassword};";
                     isSqlite = false;
@@ -128,7 +127,7 @@ namespace MatchZy
                     Log($"[InitializeDatabase] Invalid database specified, using SQLite.");
                     connectionString = sqliteConnectionString;
                     isSqlite = true;
-                    databaseType = DatabaseType.SQLite;
+                    SelectedDatabaseType = DatabaseType.SQLite;
                 }
             } 
             catch (Exception ex)
@@ -138,7 +137,7 @@ namespace MatchZy
 
         }
 
-        public void CreateRequiredTablesSQLite(IDbConnection connection)
+        public static void CreateRequiredTablesSQLite(IDbConnection connection)
 {
             connection.Execute($@"
             CREATE TABLE IF NOT EXISTS matchzy_stats_matches (
@@ -212,7 +211,7 @@ namespace MatchZy
                 )");
         }
 
-        public void CreateRequiredTablesSQL(IDbConnection connection)
+        public static void CreateRequiredTablesSQL(IDbConnection connection)
 {
             connection.Execute($@"
                 CREATE TABLE IF NOT EXISTS matchzy_stats_matches (
@@ -574,7 +573,7 @@ namespace MatchZy
                 }
 
                 using (var writer = new StreamWriter(csvFilePath))
-                using (var csv = new CsvWriter(writer, new CsvConfiguration(CultureInfo.InvariantCulture)))
+                using (var csv = CsvWriter.Create(writer))
                 {
                     IEnumerable<dynamic> playerStatsData = await connection.QueryAsync(
                         "SELECT * FROM matchzy_stats_players WHERE matchid = @MatchId AND mapnumber = @MapNumber ORDER BY team, kills DESC", new { MatchId = matchId, MapNumber = mapNumber });
@@ -587,7 +586,7 @@ namespace MatchZy
                         {
                             csv.WriteField(propertyName);
                         }
-                        csv.NextRecord(); // End of the column names row
+                        csv.EndRecord(); // End of the column names row
 
                         // Write data to the CSV file
                         foreach (var playerStats in playerStatsData)
@@ -596,7 +595,7 @@ namespace MatchZy
                             {
                                 csv.WriteField(propertyValue);
                             }
-                            csv.NextRecord();
+                            csv.EndRecord();
                         }
                     }
                 }
@@ -609,10 +608,10 @@ namespace MatchZy
 
         });
 
-        private void CreateDefaultConfigFile(string configFile)
+        private static void CreateDefaultConfigFile(string configFile)
         {
             // Create a default configuration
-            DatabaseConfig defaultConfig = new DatabaseConfig
+            DatabaseConfig defaultConfig = new()
             {
                 DatabaseType = "SQLite",
                 MySqlHost = "your_mysql_host",
@@ -623,13 +622,13 @@ namespace MatchZy
             };
 
             // Serialize and save the default configuration to the file
-            string defaultConfigJson = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
+            string defaultConfigJson = JsonSerializer.Serialize(defaultConfig, MatchZyJsonOptions.Indented);
             File.WriteAllText(configFile, defaultConfigJson);
 
             Log($"[InitializeDatabase] Default configuration file created at: {configFile}");
         }
 
-        private void SetDatabaseConfig(string directory)
+        private void SetDatabaseConfig()
         {
             string fileName = "database.json";
             string configFile = Path.Combine(Server.GameDirectory + "/csgo/cfg/MatchZy", fileName);
@@ -646,20 +645,20 @@ namespace MatchZy
                 config = JsonSerializer.Deserialize<DatabaseConfig>(jsonContent);
                 // Set the database type
                 if (config != null && config.DatabaseType?.Trim().ToLower() == "mysql") {
-                    databaseType = DatabaseType.MySQL;
+                    SelectedDatabaseType = DatabaseType.MySQL;
                 } else {
-                    databaseType = DatabaseType.SQLite;
+                    SelectedDatabaseType = DatabaseType.SQLite;
                 }
                 
             }
             catch (JsonException ex)
             {
                 Log($"[TryDeserializeConfig - ERROR] Error deserializing database.json: {ex.Message}. Using SQLite DB");
-                databaseType = DatabaseType.SQLite;
+                SelectedDatabaseType = DatabaseType.SQLite;
             }
         }
 
-        private void Log(string message)
+        private static void Log(string message)
         {
             Console.WriteLine("[MatchZy] " + message);
         }

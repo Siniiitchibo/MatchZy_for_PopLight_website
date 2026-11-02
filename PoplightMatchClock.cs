@@ -4,15 +4,9 @@ using System.Text.Json.Serialization;
 
 namespace MatchZy
 {
-    public class PoplightClockEvent : MatchZyEvent
+    public class PoplightClockEvent(long matchId, string phase, long at) : MatchZyEvent("poplight_match_clock")
     {
-        public PoplightClockEvent(long matchId, string phase, long at) : base("poplight_match_clock")
-        {
-            MatchId = matchId; Phase = phase; At = at;
-        }
-        [JsonPropertyName("matchid")] public long MatchId { get; }
-        [JsonPropertyName("phase")] public string Phase { get; }
-        [JsonPropertyName("at")] public long At { get; }
+        [JsonPropertyName("matchid")] public long MatchId { get; } = matchId; [JsonPropertyName("phase")] public string Phase { get; } = phase; [JsonPropertyName("at")] public long At { get; } = at;
     }
 
     public partial class MatchZy

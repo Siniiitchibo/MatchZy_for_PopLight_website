@@ -81,8 +81,9 @@ namespace MatchZy
                     ReplyToUserCommand(player, Localizer["matchzy.restore.stopcommandrequiresnodamage"]);
                     return;
                 }
-                string stopTeamName = "";
-                string remainingStopTeam = "";
+
+                string remainingStopTeam;
+                string stopTeamName;
                 if (player.TeamNum == 2)
                 {
                     stopTeamName = reverseTeamSides["TERRORIST"].teamName;
@@ -195,7 +196,7 @@ namespace MatchZy
             if (jsonIndex != -1)
             {
                
-                int startIndex = input.LastIndexOfAny(new[] { '\\', '/' }, jsonIndex);
+                int startIndex = input.LastIndexOfAny([ '\\', '/' ], jsonIndex);
 
                
                 if (startIndex >= 0)
@@ -258,7 +259,7 @@ namespace MatchZy
 
             // Server.ExecuteCommand($"mp_backup_restore_load_file {fileName}");
 
-            Dictionary<string, string> backupData = new();
+            Dictionary<string, string> backupData = [];
             try
             {
                 using (StreamReader fileReader = File.OpenText(filePath))
@@ -266,16 +267,13 @@ namespace MatchZy
                     string jsonContent = fileReader.ReadToEnd();
                     if (!string.IsNullOrEmpty(jsonContent))
                     {
-                        JsonSerializerOptions options = new()
-                        {
-                            AllowTrailingCommas = true,
-                        };
-                        backupData = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent, options) ?? new Dictionary<string, string>();
+                        JsonSerializerOptions options = MatchZyJsonOptions.AllowTrailingCommas;
+                        backupData = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent, options) ?? [];
                     }
                     else
                     {
                         // Handle the case where the JSON content is empty or null
-                        backupData = new();
+                        backupData = [];
                     }
                 }
 
@@ -508,10 +506,7 @@ namespace MatchZy
                         { "match_config", GetMatchConfig() },
                         { "valve_backup", valveBackupContent }
                     };
-                JsonSerializerOptions options = new()
-                {
-                    WriteIndented = true,
-                };
+                JsonSerializerOptions options = MatchZyJsonOptions.Indented;
                 string defaultJson = JsonSerializer.Serialize(roundData, options);
 
                 File.WriteAllText(filePath, defaultJson);
@@ -592,7 +587,7 @@ namespace MatchZy
             }
         }
 
-        public List<string> GetBackups(string matchID)
+        public static List<string> GetBackups(string matchID)
         {
             string backupDir = Path.Combine(Server.GameDirectory, "csgo", "MatchZyDataBackup");
 
@@ -620,15 +615,15 @@ namespace MatchZy
             return backups;
         }
 
-        public string GetBackupInfo(string filePath)
+        public static string GetBackupInfo(string filePath)
         {
-            string info = "";
             if (!File.Exists(filePath))
             {
                 return "";
             }
 
-            Dictionary<string, string> backupData = new();
+            Dictionary<string, string> backupData = [];
+            string info;
             try
             {
                 using (StreamReader fileReader = File.OpenText(filePath))
@@ -640,11 +635,8 @@ namespace MatchZy
                     }
                     else
                     {
-                        JsonSerializerOptions options = new()
-                        {
-                            AllowTrailingCommas = true,
-                        };
-                        backupData = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent, options) ?? new Dictionary<string, string>();
+                        JsonSerializerOptions options = MatchZyJsonOptions.AllowTrailingCommas;
+                        backupData = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent, options) ?? [];
 
                     }
                 }
