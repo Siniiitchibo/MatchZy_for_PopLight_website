@@ -1,4 +1,4 @@
-# MatchZy — a customized version 0.9.2 for the PopLight website.
+# MatchZy — a modified version of 0.9.2 adapted to work with the PopLight website.
 
 A customized fork of [MatchZy](https://github.com/shobhit-pathak/MatchZy) for **Counter-Strike 2**, developed for use with the **Poplight** project.
 
@@ -15,7 +15,7 @@ Poplight is a private CS2 match platform inspired by PopFlash. It combines a web
 ## Changes & Improvements
 
 - **Ready / Unready ClanTag**
-- **Demo upload fix**
+- **Demo record fix**
 - **Slovak translation**
 - **HUD messages** — adjusted in-game HUD messages.
 - **Round backup cleanup** — removes old, unnecessary round backup files.

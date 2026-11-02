@@ -18,7 +18,7 @@
   "matchzy.pause.duringhalftime": "Nem használhatod ezt a parancsot a félidőben.",
   "matchzy.pause.matchended": "Nem használhatod ezt a parancsot a meccs vége után.",
   "matchzy.pause.tacticaltimeout": "Nem használhatod ezt a parancsot taktikai szünet közben.",
-  "matchzy.restore.teamwantstorestore": "{green}{0}{default} vissza szeretné állítani a játékot az aktuális kör elejére. {green}{1}{default}, kérlek írd be: !stop a megerősítéshez.",
+  "matchzy.restore.teamwantstorestore": "{green}{0}{default} vissza szeretné állítani a játékot az aktuális kör elejére. {green}{1}{default}, kérlek írd be: .retry a megerősítéshez.",
   "matchzy.restore.loadedsuccessfully": "Mentésfájl sikeresen betöltve: {0}",
   "matchzy.restore.restoredsuccessfully": "Biztonsági mentés sikeresen visszaállítva: {0}",
   "matchzy.restore.stopcommandrequiresnodamage": "A kör újraindítása nem kérhető, ha egy játékos már sebzést okozott valamelyik ellenfélnek.",

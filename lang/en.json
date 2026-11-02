@@ -21,7 +21,7 @@
   "matchzy.pause.matchended": "You cannot use this command after the game has ended.",
   "matchzy.pause.tacticaltimeout": "You cannot use this command when tactical timeout is active.",
 
-  "matchzy.restore.teamwantstorestore": "{green}{0}{default} wants to restore the game to the beginning of the current round. {green}{1}{default}, please write !stop to confirm.",
+  "matchzy.restore.teamwantstorestore": "{green}{0}{default} wants to restore the game to the beginning of the current round. {green}{1}{default}, please write .retry to confirm.",
   "matchzy.restore.loadedsuccessfully": "Backup file loaded successfully: {0}",
   "matchzy.restore.restoredsuccessfully": "Backup restored successfully from file: {0}",
   "matchzy.restore.queued": "Backup {0} will be restored when the match goes live (run the command again to restore it now).",

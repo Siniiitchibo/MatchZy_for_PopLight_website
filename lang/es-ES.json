@@ -21,7 +21,7 @@
   "matchzy.pause.matchended": "No puedes ejecutar este comando una vez la partida ha finalizado.",
   "matchzy.pause.tacticaltimeout": "No puedes ejecutar este comando durante una pausa táctica.",
 
-  "matchzy.restore.teamwantstorestore": "{green}{0}{default} quiere restaurar la partida al principio de la ronda actual. {green}{1}{default}, por favor, escribe !stop para confirmar.",
+  "matchzy.restore.teamwantstorestore": "{green}{0}{default} quiere restaurar la partida al principio de la ronda actual. {green}{1}{default}, por favor, escribe .retry para confirmar.",
   "matchzy.restore.loadedsuccessfully": "Copia de seguridad cargada correctamente: {0}",
   "matchzy.restore.restoredsuccessfully": "Copia de seguridad restaurada correctamente del archivo: {0}",
   "matchzy.restore.stopcommandrequiresnodamage": "Una petición de reiniciar la ronda no puede llevarse a cabo cuando un jugador ha hecho daño a un rival.",

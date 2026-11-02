@@ -21,7 +21,7 @@
     "matchzy.pause.matchended": "Du kannst diesen Befehl nach Spielende nicht mehr verwenden.",
     "matchzy.pause.tacticaltimeout": "Du kannst diesen Befehl nicht während eines taktischen Timeouts verwenden.",
   
-    "matchzy.restore.teamwantstorestore": "{green}{0}{default} möchte die aktuelle Runde wiederholen. {green}{1}{default}, bitte schreibt !stop in den Chat, um zuzustimmen.",
+    "matchzy.restore.teamwantstorestore": "{green}{0}{default} möchte die aktuelle Runde wiederholen. {green}{1}{default}, bitte schreibt .retry in den Chat, um zuzustimmen.",
     "matchzy.restore.loadedsuccessfully": "Backup-Datei erfolgreich geladen: {0}",
     "matchzy.restore.restoredsuccessfully": "Das Backup der Runde wurde erfolgreich geladen: {0}",
     "matchzy.restore.stopcommandrequiresnodamage": "Eine Wiederholung der Runde kann nicht mehr beantragt werden, sobald ein Spieler einem Gegner Schaden zugefügt hat.",

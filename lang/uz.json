@@ -20,8 +20,8 @@
   "matchzy.pause.duringhalftime": "Tanaffus paytida ushbu buyruqdan foydalana olmaysiz.",
   "matchzy.pause.matchended": "Oʻyin tugagandan soʻng siz ushbu buyruqdan foydalana olmaysiz.",
   "matchzy.pause.tacticaltimeout": "Taktik taym-out faol boʻlganda siz ushbu buyruqdan foydalana olmaysiz.",
-                                                          
-  "matchzy.restore.teamwantstorestore": "{green}{0}{default} oʻyinni joriy raundning boshiga tiklamoqchi. {green}{1}{default}, tasdiqlash uchun !stop yozing.",
+
+  "matchzy.restore.teamwantstorestore": "{green}{0}{default} oʻyinni joriy raundning boshiga tiklamoqchi. {green}{1}{default}, tasdiqlash uchun .retry yozing.",
   "matchzy.restore.loadedsuccessfully": "Zaxira fayli muvaffaqiyatli yuklandi: {0}",
   "matchzy.restore.restoredsuccessfully": "Zaxira fayli muvaffaqiyatli tiklandi: {0}",
   "matchzy.restore.stopcommandrequiresnodamage": "Agar oʻyinchi raqib oʻyinchisiga zarar yetkazgan boʻlsa, raundni qayta boshlash soʻrovini berish mumkin emas.",

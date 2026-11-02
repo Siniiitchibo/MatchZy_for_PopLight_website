@@ -21,7 +21,7 @@
   "matchzy.pause.matchended": "Tento príkaz nemôžeš použiť po skončení zápasu.",
   "matchzy.pause.tacticaltimeout": "Tento príkaz nemôžeš použiť počas taktického timeoutu.",
 
-  "matchzy.restore.teamwantstorestore": "{green}{0}{default} chcú obnoviť zápas na začiatok aktuálneho kola. {green}{1}{default}, potvrď to príkazom {green}.stop{default}",
+  "matchzy.restore.teamwantstorestore": "{green}{0}{default} chcú obnoviť zápas na začiatok aktuálneho kola. {green}{1}{default}, potvrď to príkazom {green}.retry{default}",
   "matchzy.restore.loadedsuccessfully": "Súbor zálohy bol úspešne načítaný: {0}",
   "matchzy.restore.restoredsuccessfully": "Záloha bola úspešne obnovená zo súboru: {0}",
   "matchzy.restore.queued": "Záloha {0} sa obnoví po spustení zápasu. Ak ju chceš obnoviť ihneď, zadaj príkaz znova.",

@@ -50,12 +50,12 @@ namespace MatchZy
             return $"\"{CsgoFullPath(csgoRelativePath)}\"";
         }
 
-        [ConsoleCommand("css_stop", "Restore the backup of the current round (Both teams need to type .stop to restore the current round)")]
+        [ConsoleCommand("css_retry", "Restore the backup of the current round (Both teams need to type .retry to restore the current round)")]
         public void OnStopCommand(CCSPlayerController? player, CommandInfo? command)
         {
             if (player == null) return;
 
-            Log($"[!stop command] Sent by: {player.UserId}, TeamNum: {player.TeamNum}, connectedPlayers: {connectedPlayers}");
+            Log($"[!retry command] Sent by: {player.UserId}, TeamNum: {player.TeamNum}, connectedPlayers: {connectedPlayers}");
             if (isStopCommandAvailable && isMatchLive)
             {
                 if (IsHalfTimePhase())

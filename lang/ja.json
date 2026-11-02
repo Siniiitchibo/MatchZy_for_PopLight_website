@@ -21,7 +21,7 @@
   "matchzy.pause.matchended": "ゲーム終了後はこのコマンドは使用できません。",
   "matchzy.pause.tacticaltimeout": "テクニカルポーズがアクティブな場合、このコマンドは使用できません。",
 
-  "matchzy.restore.teamwantstorestore": "{green}{0}{default} ゲームを現在のラウンドの始めに戻します。 {green}{1}{default}, 確認するには !stop と入力してください。",
+  "matchzy.restore.teamwantstorestore": "{green}{0}{default} ゲームを現在のラウンドの始めに戻します。 {green}{1}{default}, 確認するには .retry と入力してください。",
   "matchzy.restore.loadedsuccessfully": "バックアップファイルを正常に読み込みました: {0}",
   "matchzy.restore.restoredsuccessfully": "バックアップファイルが正常に復元されました: {0}",
   "matchzy.restore.stopcommandrequiresnodamage": "いずれかのプレイヤーが相手にダメージを与えた後は、ラウンドのやり直しを要求できません。",

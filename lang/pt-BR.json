@@ -21,7 +21,7 @@
   "matchzy.pause.matchended": "Você não pode usar este comando depois que o jogo terminou.",
   "matchzy.pause.tacticaltimeout": "Você não pode usar este comando quando o tempo técnico está ativo.",
 
-  "matchzy.restore.teamwantstorestore": "{green}{0}{default} quer restaurar o jogo para o início do round atual. {green}{1}{default}, por favor, escreva {green}.stop{default} para confirmar.",
+  "matchzy.restore.teamwantstorestore": "{green}{0}{default} quer restaurar o jogo para o início do round atual. {green}{1}{default}, por favor, escreva {green}.retry{default} para confirmar.",
   "matchzy.restore.loadedsuccessfully": "Arquivo de backup carregado com sucesso: {0}",
   "matchzy.restore.restoredsuccessfully": "Arquivo de backup restaurado com sucesso: {0}",
   "matchzy.restore.stopcommandrequiresnodamage": "Não é possível pedir para reiniciar o round depois que um jogador já causou dano a um adversário.",
@@ -111,7 +111,7 @@
   "matchzy.pm.savepos": "Posição salva",
   "matchzy.pm.loadpos": "Posição carregada",
   "matchzy.pm.notsavedpos": "Você ainda não salvou uma posição!",
-  
+
   "matchzy.rs.minreadyplayers": "Você deve ter pelo menos {green}{0}{default} jogadores no servidor para ficar ready.",
   "matchzy.rs.forcereadiedby": "Seu time foi forçado a ficar READY por {green}{0}{default}",
 

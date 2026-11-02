@@ -1,8 +1,9 @@
 obj/*
 bin/*
+Properties/*
 /.vs
+/.git
 MatchZy.slnx
 MatchZy.csproj.user
 tests/**/bin/
 tests/**/obj/
-Properties/*
