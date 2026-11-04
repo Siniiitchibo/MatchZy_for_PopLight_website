@@ -2,6 +2,7 @@
   "matchzy.ready.markedready": "You have been marked as ready.",
   "matchzy.ready.markedunready": "You have been marked as NOT ready.",
   "matchzy.ready.readytotestorebackupinfomessage": "Unready players: {0}. Please type .ready when you are ready to restore the match backup. {1}",
+  "matchzy.ready.startdelay": "All players are ready. The game starts in {0} sec.",
 
   "matchzy.knife.sidedecisionpending": "{green}{0}{default} won the knife round. Waiting for them to type {green}.stay{default} or {green}.switch{default}.",
   "matchzy.knife.decidedtostay": "{green}{0}{default} has decided to stay.",

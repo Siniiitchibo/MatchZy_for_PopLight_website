@@ -2,6 +2,7 @@
   "matchzy.ready.markedready": "Foi marcado como Pronto.",
   "matchzy.ready.markedunready": "Foi marcado como NÃO pronto",
   "matchzy.ready.readytotestorebackupinfomessage": "Jogadores que não estão prontos: {0}. Por favor, escreve .ready quando estiveres pronto para restaurar o backup da partida. {1}",
+  "matchzy.ready.startdelay": "Todos os jogadores estão prontos. O jogo começa dentro de {0} segundos.",
 
   "matchzy.knife.sidedecisionpending": "{green}{0}{default} ganhou a ronda de faca. À espera que escolham {green}.stay{default} ou {green}.switch{default}.",
   "matchzy.knife.decidedtostay": "{green}{0}{default} decidiu ficar.",

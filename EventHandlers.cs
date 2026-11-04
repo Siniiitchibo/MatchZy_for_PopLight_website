@@ -83,6 +83,7 @@ public partial class MatchZy
             if (player == null || !player.IsValid) return HookResult.Continue;
             if (!player.UserId.HasValue) return HookResult.Continue;
             int userId = player.UserId.Value;
+            CancelReadyStartDelay();
 
             if (playerReadyStatus.Remove(userId))
             {

@@ -2,6 +2,7 @@
   "matchzy.ready.markedready": "您已被標記為準備完成。",
   "matchzy.ready.markedunready": "您已經被標記為未準備。",
   "matchzy.ready.readytotestorebackupinfomessage": "未準備的玩家：{0}。準備好還原比賽備份時請輸入 .ready。{1}",
+  "matchzy.ready.startdelay": "所有玩家皆已準備就緒。比賽將於 {0} 秒後開始。",
 
   "matchzy.knife.sidedecisionpending": "{green}{0}{default} 贏下了刀局。等待他們輸入 {green}.stay{default} 或者 {green}.switch{default}。",
   "matchzy.knife.decidedtostay": "{green}{0}{default} 決定保留陣營。",

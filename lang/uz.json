@@ -2,6 +2,7 @@
   "matchzy.ready.markedready": "Siz tayyor deb belgilandingiz.",
   "matchzy.ready.markedunready": "Siz tayyor emas deb belgilandingiz.",
   "matchzy.ready.readytotestorebackupinfomessage": "Tayyormas oʻyinchilar: {0}. Oʻyinning zaxira nusxasini tiklashga tayyor boʻlganingizda .ready yozing. {1}",
+  "matchzy.ready.startdelay": "Barcha o‘yinchilar tayyor. O‘yin {0} soniyadan keyin boshlanadi.",
 
   "matchzy.knife.sidedecisionpending": "{green}{0}{default} pichoq raundida g‘alaba qozondi. Ularni {green}.stay{default} yoki {green}.switch{default} yozishini kutmoqdamiz.",
   "matchzy.knife.decidedtostay": "{green}{0}{default} qolishga qaror qildi.",

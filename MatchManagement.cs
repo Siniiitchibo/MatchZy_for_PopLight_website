@@ -695,6 +695,7 @@ namespace MatchZy
 
         public void EndSeries(Team? winner, int restartDelay, int _2, int _3, bool cancelled = false, bool warmupCfgRequired = false)
         {
+            CancelReadyStartDelay();
             StopPoplightMatchClock();
             poplightLastEndedMatchId = liveMatchId;
 

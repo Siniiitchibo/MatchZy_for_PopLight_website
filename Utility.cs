@@ -208,7 +208,7 @@ namespace MatchZy
 
         public void UnreadyHintMessageStart()
         {
-            if (!isWarmup || matchStarted) return;
+            if (!isWarmup || matchStarted || matchStartQueued) return;
 
             foreach (var player in Utilities.GetPlayers())
             {
@@ -502,8 +502,7 @@ namespace MatchZy
         {
             try
             {
-                matchStartGeneration++;
-                matchStartQueued = false;
+                CancelReadyStartDelay();
                 CancelPendingDemoRecording();
                 ResetTechPauses();
                 bombStats.Clear();
@@ -845,39 +844,111 @@ namespace MatchZy
             }
             if (liveRequired)
             {
-                HandleMatchStart();
+                HandleMatchStart(fromJoinCountdown ? 0.0f : 5.0f);
             }
         }
 
         private bool matchStartQueued = false;
         private int matchStartGeneration = 0;
 
-        private void HandleMatchStart()
+        private void HandleMatchStart(float delay = 5.0f, bool force = false)
         {
             if (matchStarted || matchStartQueued)
                 return;
 
             matchStartQueued = true;
-            int generation = matchStartGeneration;
 
-            Server.NextFrame(() =>
+            int generation = matchStartGeneration;
+            string countdownMap = Server.MapName;
+
+            void StartWhenReady()
             {
-                // Po zrušení alebo resetovaní zápasu starý štart ignorujeme.
+                // Starý alebo zrušený odpočet nesmie spustiť zápas.
                 if (generation != matchStartGeneration)
                     return;
 
                 try
                 {
-                    if (matchStarted || isPractice)
+                    if ((!force && !readyAvailable) || matchStarted || isPractice
+                        || Server.MapName != countdownMap)
+                    {
                         return;
+                    }
+
+                    // Pred samotným štartom znova overíme pripravenosť.
+                    if (!force)
+                    {
+                        int readyCount =
+                            playerReadyStatus.Count(kv => kv.Value);
+
+                        bool stillReady;
+
+                        if (isMatchSetup)
+                        {
+                            stillReady = IsTeamsReady() && IsSpectatorsReady();
+                        }
+                        else if (minimumReadyRequired == 0)
+                        {
+                            stillReady = connectedPlayers > 0
+                                && readyCount >= connectedPlayers;
+                        }
+                        else
+                        {
+                            stillReady = readyCount >= minimumReadyRequired;
+                        }
+
+                        if (!stillReady)
+                            return;
+                    }
 
                     HandleMatchStartNow();
                 }
                 finally
                 {
-                    matchStartQueued = false;
+                    if (generation == matchStartGeneration)
+                        matchStartQueued = false;
                 }
-            });
+            }
+
+            if (delay > 0.0f)
+            {
+                void ShowCountdown(int secondsLeft)
+                {
+                    if (secondsLeft <= 0
+                        || generation != matchStartGeneration
+                        || !matchStartQueued
+                        || (!force && !readyAvailable)
+                        || matchStarted
+                        || isPractice
+                        || Server.MapName != countdownMap)
+                    {
+                        return;
+                    }
+
+                    PrintWrappedLine(
+                        HudDestination.Center,
+                        Localizer["matchzy.ready.startdelay", secondsLeft]);
+
+                    if (secondsLeft > 1)
+                    {
+                        AddTimer(1.0f, () => ShowCountdown(secondsLeft - 1));
+                    }
+                }
+
+                ShowCountdown((int)Math.Ceiling(delay));
+
+                AddTimer(delay, StartWhenReady);
+            }
+            else
+            {
+                Server.NextFrame(StartWhenReady);
+            }
+        }
+
+        private void CancelReadyStartDelay()
+        {
+            matchStartGeneration++;
+            matchStartQueued = false;
         }
         private void HandleMatchStartNow()
         {
@@ -962,7 +1033,20 @@ namespace MatchZy
                 List<string> matchStartMessages = [.. matchStartMessage.Value.Split("$$$")];
                 foreach (string message in matchStartMessages)
                 {
-                    PrintToAllChat(GetColorTreatedString(FormatCvarValue(message.Trim())));
+                    string formattedMessage =
+                        GetColorTreatedString(FormatCvarValue(message.Trim()));
+
+                    foreach (var player in Utilities.GetPlayers())
+                    {
+                        if (!player.IsValid || player.IsBot || player.IsHLTV)
+                            continue;
+
+                        string personalMessage = formattedMessage.Replace(
+                            "{PLAYER_NAME}",
+                            player.PlayerName);
+
+                        PrintToPlayerChat(player, personalMessage);
+                    }
                 }
             }
         }

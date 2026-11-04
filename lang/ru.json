@@ -2,6 +2,8 @@
   "matchzy.ready.markedready": "Вас отметили как готового.",
   "matchzy.ready.markedunready": "Вас отметили как НЕ готового.",
   "matchzy.ready.readytotestorebackupinfomessage": "Не готовы: {0}. Введите .ready, когда будете готовы восстановить бэкап матча. {1}",
+  "matchzy.ready.startdelay": "Все игроки готовы. Игра начнётся через {0} секунд.",
+
   "matchzy.knife.sidedecisionpending": "{green}{0}{default} выиграла ножевой раунд. Ждём, пока они введут {green}.stay{default} или {green}.switch{default}.",
   "matchzy.knife.decidedtostay": "{green}{0}{default} решили остаться.",
   "matchzy.knife.decidedtoswitch": "{green}{0}{default} решили сменить стороны.",

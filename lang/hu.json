@@ -2,6 +2,8 @@
   "matchzy.ready.markedready": "Készen állsz.",
   "matchzy.ready.markedunready": "Nem állsz készen.",
   "matchzy.ready.readytotestorebackupinfomessage": "Nem kész játékosok: {0}. Írd be: .ready, ha készen állsz a meccs mentésének visszaállítására. {1}",
+  "matchzy.ready.startdelay": "Minden játékos készen áll. A játék {0} másodperc múlva kezdődik.",
+
   "matchzy.knife.sidedecisionpending": "{green}{0}{default} nyerte a késes kört. Várjuk, hogy beírják: {green}.stay{default} vagy {green}.switch{default}.",
   "matchzy.knife.decidedtostay": "{green}{0}{default} úgy döntött, hogy marad.",
   "matchzy.knife.decidedtoswitch": "{green}{0}{default} úgy döntött, hogy cserél.",

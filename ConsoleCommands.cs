@@ -126,6 +126,10 @@ namespace MatchZy
                         playerReadyStatus[player.UserId.Value] = false;
                         PrintToPlayerChat(player, Localizer["matchzy.ready.markedunready"]);
                     }
+                    if (wasReady)
+                    {
+                        CancelReadyStartDelay();
+                    }
                     HandleClanTags();
                 }
             }
@@ -530,33 +534,13 @@ namespace MatchZy
             }
         }
 
-        [ConsoleCommand("css_restart", "Restarts the match")]
-        [ConsoleCommand("css_rr", "Restarts the match")]
-        public void OnRestartMatchCommand(CCSPlayerController? player, CommandInfo? command)
+        [ConsoleCommand("css_restart", "Restores the match to round 0")]
+        [ConsoleCommand("css_rr", "Restores the match to round 0")]
+        public void OnRestartMatchCommand(
+            CCSPlayerController? player,
+            CommandInfo? _)
         {
-            if (IsPlayerAdmin(player, "css_restart", "@css/config"))
-            {
-                if (!isPractice)
-                {
-                    if (matchStarted && liveMatchId != -1 && !seriesEnded)
-                    {
-                        // The restarted match is abandoned: give it an end time (with no winner) so it does not look like it is still running.
-                        long matchId = liveMatchId;
-                        (int team1SeriesScore, int team2SeriesScore) = (matchzyTeam1.seriesScore, matchzyTeam2.seriesScore);
-                        database.SetMatchEndData(matchId, "", team1SeriesScore, team2SeriesScore);
-                    }
-                    ResetMatch();
-                }
-                else
-                {
-                    // ReplyToUserCommand(player, "Practice mode is active, cannot restart the match.");
-                    ReplyToUserCommand(player, Localizer["matchzy.cc.rrispracc"]);
-                }
-            }
-            else
-            {
-                SendPlayerNotAdminMessage(player);
-            }
+            HandleRestoreCommand(player, "0");
         }
 
         [ConsoleCommand("css_map", "Changes the map using changelevel")]
@@ -614,8 +598,11 @@ namespace MatchZy
                 else
                 {
                     //Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}Admin{ChatColors.Default} has started the game!");
+                    CancelReadyStartDelay();
+
                     PrintToAllChat(Localizer["matchzy.cc.gamestarted"]);
-                    HandleMatchStart();
+
+                    HandleMatchStart(delay: 5.0f, force: true);
                 }
             }
             else

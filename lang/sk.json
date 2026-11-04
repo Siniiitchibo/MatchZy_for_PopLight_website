@@ -2,6 +2,7 @@
   "matchzy.ready.markedready": "Bol si označený ako pripravený.",
   "matchzy.ready.markedunready": "Bol si označený ako nepripravený.",
   "matchzy.ready.readytotestorebackupinfomessage": "Unready hráči: {0} Keď budeš pripravený na obnovenie zálohy zápasu, napíš {green}.ready{default} {1}",
+  "matchzy.ready.startdelay": "Všetci hráči sú pripravení. Hra začne o {0} sec.",
 
   "matchzy.knife.sidedecisionpending": "{green}{0}{default} vyhrali knife round. Čaká sa na voľbu {green}.stay{default} alebo {green}.switch{default}",
   "matchzy.knife.decidedtostay": "{green}{0}{default} sa rozhodoli zostať na svojej strane.",

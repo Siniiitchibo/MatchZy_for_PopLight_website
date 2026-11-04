@@ -2,6 +2,7 @@
   "matchzy.ready.markedready": "Você foi marcado como {green}READY{default}.",
   "matchzy.ready.markedunready": "Você foi marcado como {darkred}NOTREADY{default}.",
   "matchzy.ready.readytotestorebackupinfomessage": "Jogadores {darkred}NOTREADY: {0}{default}. Digite {green}.ready {default}quando estiver pronto para restaurar o backup da partida. {1}",
+  "matchzy.ready.startdelay": "Todos os jogadores estão prontos. A partida começa em {0} segundos.",
 
   "matchzy.knife.sidedecisionpending": "{green}{0}{default} ganharam ROUND FACA. Aguardando eles digitarem {green}.stay{default} para ficar ou {green}.switch{default} para trocar de time.",
   "matchzy.knife.decidedtostay": "{green}{0}{default} decidiu ficar no mesmo time.",

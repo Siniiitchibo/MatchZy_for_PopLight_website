@@ -18,7 +18,7 @@ namespace MatchZy
 
         public override string ModuleName => "poplight-MatchZy(0.9.2)";
 
-        public override string ModuleVersion => "0.2.0";
+        public override string ModuleVersion => "0.2.1";
 
         public override string ModuleAuthor => "WD- / Siniii_tchibo (https://github.com/Siniiitchibo/)";
 
@@ -274,6 +274,8 @@ namespace MatchZy
                 { ".restart", OnRestartMatchCommand },
                 { ".rr", OnRestartMatchCommand },
                 { ".endmatch", OnEndMatchCommand },
+                { ".end", OnEndMatchCommand },
+                { ".quit", OnEndMatchCommand },
                 { ".forceend", OnEndMatchCommand },
                 { ".reloadmap", OnMapReloadCommand },
                 { ".settings", OnMatchSettingsCommand },

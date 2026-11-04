@@ -2,6 +2,7 @@
   "matchzy.ready.markedready": "Vous avez été marqué comme prêt.",
   "matchzy.ready.markedunready": "Vous avez été marqué comme NON prêt.",
   "matchzy.ready.readytotestorebackupinfomessage": "Joueurs non prêts : {0}. Tapez .ready quand vous êtes prêt à restaurer la sauvegarde du match. {1}",
+  "matchzy.ready.startdelay": "Tous les joueurs sont prêts. La partie commence dans {0} secondes.",
 
   "matchzy.knife.sidedecisionpending": "{green}{0}{default} a remporté la manche au couteau. En attente de leur saisie {green}.stay{default} ou {green}.switch{default}.",
   "matchzy.knife.decidedtostay": "{green}{0}{default} a décidé de rester.",
