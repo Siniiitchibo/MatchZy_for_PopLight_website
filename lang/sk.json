@@ -69,6 +69,13 @@
   "matchzy.cc.skipveto": "Vetovanie bolo zrušené!",
   "matchzy.cc.matchpaused": "Zápas je už pozastavený, taktický timeout nemožno spustiť!",
   "matchzy.cc.nomorepauses": "Už nemáš žiadne taktické timeouty!",
+  "matchzy.cc.freezetime.usage": "Použitie: .freezetime <sekundy>. Zadaj celé číslo 0 alebo vyššie.",
+  "matchzy.cc.freezetime.changed": "Freezetime bol nastavený na {0} sec.",
+  "matchzy.cc.freezetime.unavailable": "Príkaz mp_freezetime nie je dostupný.",
+  "matchzy.cc.c4timerusage": "Použitie: .c4timer 40 (minimálne 10 sekúnd).",
+  "matchzy.cc.c4timerset": "Čas do výbuchu bomby bol nastavený na {0} sec.",
+  "matchzy.cc.roundtimeusage": "Použitie: .roundtime <min:sec>, napr. .roundtime 1:55 (rozsah 0:06 až 60:00).",
+  "matchzy.cc.roundtimeset": "Čas kola bol nastavený na {0} min.",
 
   "matchzy.mm.matchisalreadysetup": "[LoadMatch] Zápas s ID {green}{0}{default} je už pripravený, nový zápas nemožno načítať!",
   "matchzy.mm.filedoesntexist": "[LoadMatch] Zadaný súbor neexistuje! Použitie: matchzy_loadmatch <filename>",

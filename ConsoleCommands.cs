@@ -5,6 +5,7 @@ using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace MatchZy
 {
@@ -548,6 +549,111 @@ namespace MatchZy
         {
             var mapName = command.ArgByIndex(1);
             HandleMapChangeCommand(player, mapName);
+        }
+
+        [ConsoleCommand("css_freezetime", "Sets mp_freezetime in seconds")]
+        public void OnFreezetimeCommand(
+            CCSPlayerController? player,
+            CommandInfo? command)
+        {
+            HandleFreezetimeCommand(player, command?.ArgString ?? "");
+        }
+
+        [ConsoleCommand("css_c4timer", "Set the C4 timer in seconds")]
+        public void OnC4TimerCommand(CCSPlayerController? player, CommandInfo? command)
+        {
+            HandleC4TimerCommand(player, command is { ArgCount: 2 } ? command.GetArg(1) : "");
+        }
+
+        [ConsoleCommand("css_roundtime", "Set the round time in minutes")]
+        public void OnRoundTimeCommand(CCSPlayerController? player, CommandInfo? command)
+        {
+            HandleRoundTimeCommand(player, command is { ArgCount: 2 } ? command.GetArg(1) : "");
+        }
+
+        private void HandleC4TimerCommand(CCSPlayerController? player, string argument)
+        {
+            if (!IsPlayerAdmin(player, "css_c4timer", "@css/config"))
+            {
+                SendPlayerNotAdminMessage(player);
+                return;
+            }
+
+            if (!int.TryParse(argument.Trim(), NumberStyles.None,
+                    CultureInfo.InvariantCulture, out int seconds) || seconds < 10)
+            {
+                ReplyToUserCommand(player, Localizer["matchzy.cc.c4timerusage"]);
+                return;
+            }
+
+            string value = seconds.ToString(CultureInfo.InvariantCulture);
+            Server.ExecuteCommand($"mp_c4timer {value}");
+            ReplyToUserCommand(player, Localizer["matchzy.cc.c4timerset", value]);
+        }
+
+        private void HandleRoundTimeCommand(CCSPlayerController? player, string argument)
+        {
+            if (!IsPlayerAdmin(player, "css_roundtime", "@css/config"))
+            {
+                SendPlayerNotAdminMessage(player);
+                return;
+            }
+
+            string[] parts = argument.Trim().Split(':');
+
+            if (parts.Length != 2 || parts[1].Length != 2 ||
+                !int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out int minutes) ||
+                !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out int seconds) ||
+                minutes > 60 || seconds > 59 ||
+                (minutes == 0 && seconds < 6) ||
+                (minutes == 60 && seconds != 0))
+            {
+                ReplyToUserCommand(player, Localizer["matchzy.cc.roundtimeusage"]);
+                return;
+            }
+
+            int totalSeconds = minutes * 60 + seconds;
+            string value = (totalSeconds / 60m).ToString("0.#########", CultureInfo.InvariantCulture);
+            string displayTime = FormattableString.Invariant($"{minutes}:{seconds:00}");
+
+            Server.ExecuteCommand(
+                $"mp_roundtime {value}; mp_roundtime_defuse {value}; mp_roundtime_hostage {value}");
+            ReplyToUserCommand(player, Localizer["matchzy.cc.roundtimeset", displayTime]);
+        }
+
+        private void HandleFreezetimeCommand(
+            CCSPlayerController? player,
+            string argument)
+        {
+            if (!IsPlayerAdmin(player, "css_freezetime", "@css/config"))
+            {
+                SendPlayerNotAdminMessage(player);
+                return;
+            }
+
+            if (!int.TryParse(argument.Trim(), out int seconds) || seconds < 0)
+            {
+                ReplyToUserCommand(
+                    player,
+                    Localizer["matchzy.cc.freezetime.usage"]);
+                return;
+            }
+
+            var freezetime = ConVar<int>.Find("mp_freezetime");
+
+            if (freezetime is null)
+            {
+                ReplyToUserCommand(
+                    player,
+                    Localizer["matchzy.cc.freezetime.unavailable"]);
+                return;
+            }
+
+            freezetime.Value = seconds;
+
+            ReplyToUserCommand(
+                player,
+                Localizer["matchzy.cc.freezetime.changed", freezetime.Value]);
         }
 
         [ConsoleCommand("css_rmap", "Reloads the current map")]

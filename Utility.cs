@@ -34,6 +34,8 @@ namespace MatchZy
             player.PrintToChat($"{chatPrefix} {message}");
         }
 
+        private readonly Dictionary<int, string> originalPlayerClanTags = [];
+
         private void ReplyToUserCommand(CCSPlayerController? player, string message, bool console = false)
         {
             if (player == null)
@@ -1063,17 +1065,19 @@ namespace MatchZy
                     continue;
                 }
 
-                // Diváci a tréneri nedostávajú ready tag.
-                if ((player.TeamNum != 2 && player.TeamNum != 3) ||
-                    player.CoachingTeam != 0)
-                {
-                    continue;
-                }
+                bool showReadyTag =
+                    readyAvailable &&
+                    !matchStarted &&
+                    (player.TeamNum == 2 || player.TeamNum == 3) &&
+                    player.CoachingTeam == 0;
 
                 string tag;
 
-                if (readyAvailable && !matchStarted)
+                if (showReadyTag)
                 {
+                    // Pôvodný tag uložíme iba pred prvým prepísaním.
+                    originalPlayerClanTags.TryAdd(entry.Key, player.Clan);
+
                     bool ready =
                         IsJoinReadyMode() ||
                         IsTeamForcedReady((CsTeam)player.TeamNum) ||
@@ -1084,13 +1088,20 @@ namespace MatchZy
                 }
                 else
                 {
-                    // Po skončení ready fázy odstránime náš stavový tag.
+                    if (!originalPlayerClanTags.Remove(
+                            entry.Key, out var originalTag))
+                    {
+                        continue;
+                    }
+
+                    // Ak tag medzičasom zmenila hra alebo iná funkcia
+                    // (napríklad označenie trénera), neprepisujeme ho.
                     if (player.Clan != "READY" && player.Clan != "UNREADY")
                     {
                         continue;
                     }
 
-                    tag = "";
+                    tag = originalTag;
                 }
 
                 if (player.Clan == tag)
@@ -1099,6 +1110,7 @@ namespace MatchZy
                 }
 
                 player.Clan = tag;
+
                 Utilities.SetStateChanged(
                     player,
                     "CCSPlayerController",
@@ -1119,8 +1131,9 @@ namespace MatchZy
             // Ref: Get5
             int restartDelay = ConVar<int>.Find("mp_match_restart_delay")!.Value;
             int tvDelay = GetTvDelay();
-            int requiredDelay = tvDelay + 15;
-            int tvFlushDelay = requiredDelay;
+            bool fastFinish = tvDelay == 0 && (!isMatchSetup || matchConfig.NumMaps == 1);
+            int requiredDelay = fastFinish ? 11 : tvDelay + 15;
+            int tvFlushDelay = fastFinish ? 9 : requiredDelay;
             if (tvDelay > 0.0)
             {
                 requiredDelay += 10;
@@ -1134,7 +1147,7 @@ namespace MatchZy
             int currentMapNumber = matchConfig.CurrentMapNumber;
             Log($"[HandleMatchEnd] MAP ENDED, isMatchSetup: {isMatchSetup} matchid: {liveMatchId} currentMapNumber: {currentMapNumber} tvFlushDelay: {tvFlushDelay}");
 
-            StopDemoRecording(tvFlushDelay - 0.5f, activeDemoFile, liveMatchId, currentMapNumber);
+            StopDemoRecording(fastFinish ? 1.0f : tvFlushDelay - 0.5f, activeDemoFile, liveMatchId, currentMapNumber);
 
             (int t1score, int t2score) = GetTeamsScore();
             Team? mapWinner = t1score > t2score ? matchzyTeam1 : t2score > t1score ? matchzyTeam2 : null;
@@ -1146,7 +1159,7 @@ namespace MatchZy
             // Todo: Support BO3/BO5 in pugs as well
             if (!isMatchSetup)
             {
-                EndSeries(mapWinner, restartDelay - 1, t1score, t2score);
+                EndSeries(mapWinner, fastFinish ? 10 : restartDelay - 1, t1score, t2score);
                 return;
             }
 
@@ -1158,7 +1171,7 @@ namespace MatchZy
             if (outcome != SeriesOutcome.Continue)
             {
                 // A tie ends the series without a winner.
-                EndSeries(GetSeriesLeader(), restartDelay - 1, t1score, t2score);
+                EndSeries(GetSeriesLeader(), fastFinish ? 10 : restartDelay - 1, t1score, t2score);
                 return;
             }
             if (matchzyTeam1.seriesScore > matchzyTeam2.seriesScore)
@@ -1709,8 +1722,14 @@ namespace MatchZy
             }
             if (matchStarted)
             {
-                string stopCommandMessage = isStopCommandAvailable ? ", .stop" : "";
-                player!.PrintToChat($" {ChatColors.Green}Pause/Restore: {ChatColors.Default}.pause, .unpause, .tac, .tech{stopCommandMessage}");
+                string stopCommandMessage = isStopCommandAvailable ? ", .retry" : "";
+                player!.PrintToChat($" {ChatColors.Green}Dostupné príkazy: {ChatColors.Default}.pause, .tech{stopCommandMessage}");
+
+                if (IsPlayerAdmin(player, "css_help", "@css/config"))
+                {
+                    player.PrintToChat(
+                        $" {ChatColors.Green}Admin príkazy: {ChatColors.Default}.restore <kolo>, .restart, .freezetime <sekundy>, .c4timer <sekundy>, .roundtime <1.92>");
+                }
                 return;
             }
         }

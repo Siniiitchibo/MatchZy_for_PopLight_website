@@ -69,6 +69,13 @@
   "matchzy.cc.skipveto": "Veto phase has been cancelled!",
   "matchzy.cc.matchpaused": "Match is already paused, cannot start a tactical timeout!",
   "matchzy.cc.nomorepauses": "You do not have any tactical timeouts left!",
+  "matchzy.cc.freezetime.usage": "Usage: .freezetime <seconds>. Enter a whole number of 0 or higher.",
+  "matchzy.cc.freezetime.changed": "Freezetime has been set to {0} sec.",
+  "matchzy.cc.freezetime.unavailable": "The mp_freezetime console variable is unavailable.",
+  "matchzy.cc.c4timerusage": "Usage: .c4timer 40 (minimum 10 seconds).",
+  "matchzy.cc.c4timerset": "C4 timer set to {0} sec.",
+  "matchzy.cc.roundtimeusage": "Usage: .roundtime <min:sec>, for example .roundtime 1:55 (from 0:06 to 60:00).",
+  "matchzy.cc.roundtimeset": "Round time set to {0} minutes.",
 
   "matchzy.mm.matchisalreadysetup": "[LoadMatch] A match is already setup with id: {green}{0}{default}, cannot load a new match!",
   "matchzy.mm.filedoesntexist": "[LoadMatch] Provided file does not exist! Usage: matchzy_loadmatch <filename>",

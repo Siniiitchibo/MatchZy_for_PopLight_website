@@ -18,9 +18,9 @@ namespace MatchZy
 
         public override string ModuleName => "poplight-MatchZy(0.9.2)";
 
-        public override string ModuleVersion => "0.2.1";
+        public override string ModuleVersion => "0.2.2";
 
-        public override string ModuleAuthor => "WD- / Siniii_tchibo (https://github.com/Siniiitchibo/)";
+        public override string ModuleAuthor => "WD- / Siniii_tchibo";
 
         public override string ModuleDescription => "A plugin for running and managing CS2 practice/pugs/scrims/matches!";
 
@@ -310,6 +310,8 @@ namespace MatchZy
                 { ".exitprac", OnMatchCommand },
                 { ".retry", OnStopCommand },
                 { ".help", OnHelpCommand },
+                { ".command", OnHelpCommand },
+                { ".commands", OnHelpCommand },
                 { ".t", OnTCommand },
                 { ".ct", OnCTCommand },
                 { ".spec", OnSpecCommand },
@@ -564,6 +566,15 @@ namespace MatchZy
                 {
                     HandleMapChangeCommand(player, messageCommandArg);
                 }
+                if (commandName == ".c4timer")
+                {
+                    HandleC4TimerCommand(player, messageCommandArg);
+                }
+
+                if (commandName == ".roundtime")
+                {
+                    HandleRoundTimeCommand(player, messageCommandArg);
+                }
                 if (commandName == ".readyrequired")
                 {
                     HandleReadyRequiredCommand(player, messageCommandArg);
@@ -572,6 +583,10 @@ namespace MatchZy
                 if (commandName == ".restore")
                 {
                     HandleRestoreCommand(player, messageCommandArg);
+                }
+                if (commandName == ".freezetime")
+                {
+                    HandleFreezetimeCommand(player, messageCommandArg);
                 }
                 if (commandName == ".asay")
                 {
