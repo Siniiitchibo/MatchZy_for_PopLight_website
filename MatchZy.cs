@@ -18,7 +18,7 @@ namespace MatchZy
 
         public override string ModuleName => "poplight-MatchZy(0.9.2)";
 
-        public override string ModuleVersion => "0.2.4";
+        public override string ModuleVersion => "0.2.5";
 
         public override string ModuleAuthor => "WD- / Siniii_tchibo";
 
@@ -222,6 +222,13 @@ namespace MatchZy
             // Ready-up time limit (get5_time_to_start), checked every second like Get5's Timer_CheckReady. Not tied to a map.
             AddTimer(1.0f, CheckReadyTime, TimerFlags.REPEAT);
             AddTimer(1.0f, HandleClanTags, TimerFlags.REPEAT);
+
+            AddTimer(1.0f, CheckWarmupWelcomeMessage, TimerFlags.REPEAT);
+
+            RegisterListener<Listeners.OnMapStart>(_ =>
+            {
+                warmupWelcomeMessageLastSent.Clear();
+            });
 
             // This sets default config ConVars
             Server.ExecuteCommand("execifexists MatchZy/config.cfg");

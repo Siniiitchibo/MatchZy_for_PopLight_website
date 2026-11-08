@@ -63,6 +63,9 @@ public partial class MatchZy
                     AutoStart();
                 }
             }
+
+            SendWarmupWelcomeMessageToPlayer(player);
+
             return HookResult.Continue;
 
         }
