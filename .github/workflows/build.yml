@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch:
 
+concurrency:
+  group: matchzy-release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Build and Release
@@ -16,14 +20,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0'
-
-      - name: Run unit tests
-        run: dotnet test tests/MatchZy.Tests -c Release
 
       - name: Get versions
         shell: bash
@@ -42,13 +38,64 @@ jobs:
           echo "MatchZy version: $MATCHZY_VERSION"
           echo "CounterStrikeSharp version: $CSSHARP_VERSION"
 
+      - name: Check whether version already exists
+        id: release_check
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          HTTP_STATUS=$(curl \
+            --silent \
+            --show-error \
+            --location \
+            --retry 3 \
+            --retry-delay 3 \
+            --connect-timeout 30 \
+            --max-time 90 \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --output "$RUNNER_TEMP/matchzy-tag.json" \
+            --write-out '%{http_code}' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/tags/${MATCHZY_VERSION}")
+
+          case "$HTTP_STATUS" in
+            200)
+              echo "create_release=false" >> "$GITHUB_OUTPUT"
+              echo "Version $MATCHZY_VERSION already exists. Skipping build and release."
+              echo "### Release skipped" >> "$GITHUB_STEP_SUMMARY"
+              echo "Version $MATCHZY_VERSION already exists. Increase ModuleVersion in MatchZy.cs to publish a new release." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            404)
+              echo "create_release=true" >> "$GITHUB_OUTPUT"
+              echo "New version $MATCHZY_VERSION. Continuing with build and release."
+              ;;
+            *)
+              echo "::error::Could not check the version tag. GitHub API returned HTTP $HTTP_STATUS."
+              exit 1
+              ;;
+          esac
+
+      - name: Set up .NET
+        if: steps.release_check.outputs.create_release == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0'
+
+      - name: Run unit tests
+        if: steps.release_check.outputs.create_release == 'true'
+        run: dotnet test tests/MatchZy.Tests -c Release
+
       - name: Build MatchZy
+        if: steps.release_check.outputs.create_release == 'true'
         run: |
           dotnet publish MatchZy.csproj \
             --configuration Release \
             --output "$RUNNER_TEMP/matchzy-publish"
 
       - name: Prepare standalone package
+        if: steps.release_check.outputs.create_release == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -78,6 +125,7 @@ jobs:
           )
 
       - name: Download CounterStrikeSharp
+        if: steps.release_check.outputs.create_release == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -91,6 +139,9 @@ jobs:
               --retry 3 \
               --retry-delay 3 \
               --connect-timeout 30 \
+              --max-time 180 \
+              --speed-limit 1024 \
+              --speed-time 30 \
               --output "downloads/cssharp-${platform}.zip" \
               "https://github.com/roflmuffin/CounterStrikeSharp/releases/download/v${CSSHARP_VERSION}/counterstrikesharp-with-runtime-${platform}-${CSSHARP_VERSION}.zip"
 
@@ -99,6 +150,7 @@ jobs:
           done
 
       - name: Prepare packages with CounterStrikeSharp
+        if: steps.release_check.outputs.create_release == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -121,6 +173,7 @@ jobs:
           done
 
       - name: Create Release
+        if: steps.release_check.outputs.create_release == 'true'
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -20,6 +20,7 @@ Poplight is a private CS2 match platform inspired by PopFlash. It combines a web
 - **HUD messages** — adjusted in-game HUD messages.
 - **Round backup cleanup** — removes old, unnecessary round backup files.
 - **Poplight integration** — plugin-side adjustments for the Poplight platform.
+- Granade rethrow fix.
 - Other minor fixes and improvements.
 
 ## Download & Installation
