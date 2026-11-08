@@ -8,10 +8,11 @@ on:
 
 jobs:
   build:
-    permissions:
-        contents: write
     name: Build and Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -24,66 +25,100 @@ jobs:
       - name: Run unit tests
         run: dotnet test tests/MatchZy.Tests -c Release
 
-      - name: Get MatchZy Version
-        id: MATCHZY_VERSION
+      - name: Get versions
+        shell: bash
         run: |
-            MATCHZY_VERSION=$(grep -oP 'ModuleVersion\s*=>\s*"\K[^"]*' MatchZy.cs)
-            echo "MATCHZY_VERSION=$MATCHZY_VERSION" >> $GITHUB_ENV
-      - name: Build and Release Artifacts
-        run: |
+          set -euo pipefail
+
+          MATCHZY_VERSION=$(grep -oP 'ModuleVersion\s*=>\s*"\K[^"]*' MatchZy.cs)
           CSSHARP_VERSION=$(grep -Po '<PackageReference Include="CounterStrikeSharp.API" Version="\K\d+(\.\d+)*' MatchZy.csproj)
-          echo "Creating MatchZy base package with version: $MATCHZY_VERSION"
-          dotnet publish -o package/addons/counterstrikesharp/plugins/MatchZy
-          cp -r cfg package 
-          # Server data files are created by the plugin when missing; shipping them made updates overwrite admins, the
-          # database settings, saved lineups and the whitelist.
-          rm -f package/cfg/MatchZy/admins.json package/cfg/MatchZy/database.json package/cfg/MatchZy/savednades.json package/cfg/MatchZy/whitelist.cfg
-          mkdir -p package/addons/counterstrikesharp/gamedata && cp gamedata/matchzy.json package/addons/counterstrikesharp/gamedata/
-          cd package && zip -q -r ../MatchZy-$MATCHZY_VERSION.zip * && cd ..
-    
-          echo "Creating package with CounterStrikeSharp (CSSharp) v$CSSHARP_VERSION for Linux"
-          cd package/
-          echo "Installing CounterStrikeSharp (CSSharp) v$CSSHARP_VERSION"
-          [ -e addons/counterstrikesharp ] && rm -rf addons/counterstrikesharp && echo "CounterStrikeSharp removed" || echo "old CounterStrikeSharp not found"
-          curl -s https://api.github.com/repos/roflmuffin/CounterStrikeSharp/releases/tags/v$CSSHARP_VERSION |
-              grep "/counterstrikesharp-with-runtime-linux-$CSSHARP_VERSION" |
-              cut -d : -f 2,3 |
-              tr -d \" |
-              head -n 1 |
-              wget -O cssharp-linux.zip -qi -
-          unzip -o cssharp-linux.zip -d .
-          rm cssharp-linux.zip
-          cd ../
 
-          dotnet publish -o package/addons/counterstrikesharp/plugins/MatchZy
+          test -n "$MATCHZY_VERSION"
+          test -n "$CSSHARP_VERSION"
 
-          mkdir -p package/addons/counterstrikesharp/gamedata && cp gamedata/matchzy.json package/addons/counterstrikesharp/gamedata/
-          cd package && zip -q -r ../MatchZy-$MATCHZY_VERSION-with-cssharp-linux.zip * && cd ..
+          echo "MATCHZY_VERSION=$MATCHZY_VERSION" >> "$GITHUB_ENV"
+          echo "CSSHARP_VERSION=$CSSHARP_VERSION" >> "$GITHUB_ENV"
 
-          rm -r package/*
+          echo "MatchZy version: $MATCHZY_VERSION"
+          echo "CounterStrikeSharp version: $CSSHARP_VERSION"
 
-          echo "Creating package with CounterStrikeSharp (CSSharp) v$CSSHARP_VERSION for Windows"
-          cp -r cfg package
-          # Server data files are created by the plugin when missing; shipping them made updates overwrite admins, the
-          # database settings, saved lineups and the whitelist.
-          rm -f package/cfg/MatchZy/admins.json package/cfg/MatchZy/database.json package/cfg/MatchZy/savednades.json package/cfg/MatchZy/whitelist.cfg
-          cd package/
-          echo "Installing CounterStrikeSharp (CSSharp) v$CSSHARP_VERSION"
-          [ -e addons/counterstrikesharp ] && rm -rf addons/counterstrikesharp && echo "CounterStrikeSharp removed" || echo "old CounterStrikeSharp not found"
-          curl -s https://api.github.com/repos/roflmuffin/CounterStrikeSharp/releases/tags/v$CSSHARP_VERSION |
-              grep "/counterstrikesharp-with-runtime-windows-$CSSHARP_VERSION" |
-              cut -d : -f 2,3 |
-              tr -d \" |
-              head -n 1 |
-              wget -O cssharp-windows.zip -qi -
-          unzip -o cssharp-windows.zip -d .
-          rm cssharp-windows.zip
-          cd ../
+      - name: Build MatchZy
+        run: |
+          dotnet publish MatchZy.csproj \
+            --configuration Release \
+            --output "$RUNNER_TEMP/matchzy-publish"
 
-          dotnet publish -o package/addons/counterstrikesharp/plugins/MatchZy
+      - name: Prepare standalone package
+        shell: bash
+        run: |
+          set -euo pipefail
 
-          mkdir -p package/addons/counterstrikesharp/gamedata && cp gamedata/matchzy.json package/addons/counterstrikesharp/gamedata/
-          cd package && zip -q -r ../MatchZy-$MATCHZY_VERSION-with-cssharp-windows.zip * && cd ..
+          mkdir -p standalone/addons/counterstrikesharp/plugins/MatchZy
+          mkdir -p standalone/addons/counterstrikesharp/gamedata
+
+          cp -a "$RUNNER_TEMP/matchzy-publish/." \
+            standalone/addons/counterstrikesharp/plugins/MatchZy/
+
+          cp gamedata/matchzy.json \
+            standalone/addons/counterstrikesharp/gamedata/
+
+          cp -a cfg standalone/
+
+          # These files are created by MatchZy when missing.
+          # Do not include them in updates.
+          rm -f \
+            standalone/cfg/MatchZy/admins.json \
+            standalone/cfg/MatchZy/database.json \
+            standalone/cfg/MatchZy/savednades.json \
+            standalone/cfg/MatchZy/whitelist.cfg
+
+          (
+            cd standalone
+            zip -q -r "../MatchZy-${MATCHZY_VERSION}.zip" .
+          )
+
+      - name: Download CounterStrikeSharp
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p downloads
+
+          for platform in linux windows; do
+            echo "Downloading CounterStrikeSharp $CSSHARP_VERSION for $platform"
+
+            curl --fail --location \
+              --retry 3 \
+              --retry-delay 3 \
+              --connect-timeout 30 \
+              --output "downloads/cssharp-${platform}.zip" \
+              "https://github.com/roflmuffin/CounterStrikeSharp/releases/download/v${CSSHARP_VERSION}/counterstrikesharp-with-runtime-${platform}-${CSSHARP_VERSION}.zip"
+
+            # Verify the downloaded archive before packaging it.
+            unzip -tq "downloads/cssharp-${platform}.zip"
+          done
+
+      - name: Prepare packages with CounterStrikeSharp
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for platform in linux windows; do
+            package_dir="package-${platform}"
+            mkdir -p "$package_dir"
+
+            unzip -q "downloads/cssharp-${platform}.zip" \
+              -d "$package_dir"
+
+            # Copy our plugin, gamedata and configuration over the CSS package.
+            cp -a standalone/. "$package_dir/"
+
+            (
+              cd "$package_dir"
+              zip -q -r \
+                "../MatchZy-${MATCHZY_VERSION}-with-cssharp-${platform}.zip" .
+            )
+          done
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -91,7 +126,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           name: MatchZy ${{ env.MATCHZY_VERSION }}
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || env.MATCHZY_VERSION }}
+          tag_name: ${{ env.MATCHZY_VERSION }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
           body: |
@@ -104,6 +139,8 @@ jobs:
 
             Extract the selected package into the server's game/csgo directory.
             Metamod must already be installed.
+
+            Existing admins.json, database.json, savednades.json and whitelist.cfg are preserved.
           draft: false
           prerelease: false
           fail_on_unmatched_files: true
@@ -111,4 +148,3 @@ jobs:
             MatchZy-${{ env.MATCHZY_VERSION }}.zip
             MatchZy-${{ env.MATCHZY_VERSION }}-with-cssharp-linux.zip
             MatchZy-${{ env.MATCHZY_VERSION }}-with-cssharp-windows.zip
-
