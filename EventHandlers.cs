@@ -23,7 +23,9 @@ public partial class MatchZy
                 bool kicked = HandlePlayerWhitelist(player, steamId.ToString());
                 if (kicked) return HookResult.Continue;
 
-                if (isMatchSetup || matchModeOnly)
+                QueuePoplightPracticeInitialTeam(player);
+
+                if (poplightPracticeSession == null && (isMatchSetup || matchModeOnly))
                 {
                     CsTeam team = GetPlayerTeam(player);
                     if (team == CsTeam.None)

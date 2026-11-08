@@ -2327,6 +2327,8 @@ namespace MatchZy
 
         public bool HandlePlayerWhitelist(CCSPlayerController player, string steamId)
         {
+            if (poplightPracticeSession != null)
+                return RejectPoplightPracticePlayer(player, steamId);
             string whitelistfileName = "MatchZy/whitelist.cfg";
             string whitelistPath = Path.Join(Server.GameDirectory + "/csgo/cfg", whitelistfileName);
             string? directoryPath = Path.GetDirectoryName(whitelistPath);
