@@ -18,7 +18,7 @@ namespace MatchZy
 
         public override string ModuleName => "poplight-MatchZy(0.9.2)";
 
-        public override string ModuleVersion => "0.2.6";
+        public override string ModuleVersion => "0.2.7";
 
         public override string ModuleAuthor => "WD- / Siniii_tchibo";
 

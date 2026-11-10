@@ -41,6 +41,7 @@ public partial class MatchZy
     private bool poplightPracticeReady;
     private int poplightPracticePreviousAutoStartMode;
     private string? poplightPracticeError;
+    private string? poplightPracticeConfigPath;
 
     private readonly Dictionary<int, (long SessionId, CsTeam Team)>
     poplightPracticeInitialTeams = [];
@@ -117,6 +118,31 @@ public partial class MatchZy
             player.ChangeTeam(initial.Team);
     }
 
+    private void DeletePoplightPracticeConfig()
+    {
+        string? path = poplightPracticeConfigPath;
+
+        if (string.IsNullOrEmpty(path))
+            return;
+
+        try
+        {
+            File.Delete(path);
+            poplightPracticeConfigPath = null;
+
+            Log(
+                $"[Poplight practice] Konfigurácia bola odstránená: " +
+                Path.GetFileName(path));
+        }
+        catch (Exception ex) when (
+            ex is IOException or UnauthorizedAccessException)
+        {
+            Log(
+                $"[Poplight practice] Konfiguráciu sa nepodarilo vymazať: " +
+                $"{Path.GetFileName(path)}. {ex.Message}");
+        }
+    }
+
     private void InitializePoplightPractice()
     {
         RegisterEventHandler<EventPlayerTeam>(
@@ -143,6 +169,7 @@ public partial class MatchZy
                 if (poplightPracticeSession?.Id != expected) return;
                 if (isMatchSetup)
                 {
+                    DeletePoplightPracticeConfig();
                     poplightPracticeSession = null;
                     poplightPracticeReady = false;
                     autoStartMode = poplightPracticePreviousAutoStartMode;
@@ -186,6 +213,7 @@ public partial class MatchZy
         if (poplightPracticeSession != null &&
             (isMatchSetup || (poplightPracticeReady && !isPractice)))
         {
+            DeletePoplightPracticeConfig();
             poplightPracticeSession = null;
             poplightPracticeReady = false;
             autoStartMode = poplightPracticePreviousAutoStartMode;
@@ -272,6 +300,7 @@ public partial class MatchZy
             if (isPractice) ExecUnpracCommands();
             poplightPracticePreviousAutoStartMode = autoStartMode;
             poplightPracticeSession = session;
+            poplightPracticeConfigPath = path;
             poplightPracticeReady = false;
             autoStartMode = 2;
             isPractice = false;
@@ -298,6 +327,7 @@ public partial class MatchZy
             if (poplightPracticeSession != null)
             {
                 autoStartMode = poplightPracticePreviousAutoStartMode;
+                DeletePoplightPracticeConfig();
                 poplightPracticeSession = null;
                 poplightPracticeReady = false;
                 ResetMatch();
@@ -324,6 +354,7 @@ public partial class MatchZy
         }
         if (poplightPracticeSession != null)
         {
+            DeletePoplightPracticeConfig();
             poplightPracticeSession = null;
             poplightPracticeReady = false;
             poplightPracticeError = null;
