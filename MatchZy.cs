@@ -16,9 +16,9 @@ namespace MatchZy
     public partial class MatchZy : BasePlugin
     {
 
-        public override string ModuleName => "poplight-MatchZy(0.9.2)";
+        public override string ModuleName => "PopLight-MatchZy";
 
-        public override string ModuleVersion => "0.2.7";
+        public override string ModuleVersion => "0.2.8";
 
         public override string ModuleAuthor => "WD- / Siniii_tchibo";
 
@@ -261,6 +261,7 @@ namespace MatchZy
                 { ".stay", OnTeamStay },
                 { ".switch", OnTeamSwitch },
                 { ".swap", OnTeamSwitch },
+                { ".swapteams", OnSwapTeamsCommand },
                 { ".tech", OnTechCommand },
                 { ".p", OnPauseCommand },
                 { ".pause", OnPauseCommand },

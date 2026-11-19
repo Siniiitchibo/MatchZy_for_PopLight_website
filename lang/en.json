@@ -170,5 +170,13 @@
   "matchzy.pause.pauserequestcanceled": "{green}{0}{default} canceled their pause request.",
   "matchzy.pause.unpausedby": "{green}{0}{default} unpaused the match.",
   "matchzy.pause.techhinttime": "{0} ({1}) technical pause{2}. Time remaining before anyone can unpause: {3}",
-  "matchzy.pause.techhintawaiting": "{0} ({1}) technical pause{2}. Awaiting unpause."
+  "matchzy.pause.techhintawaiting": "{0} ({1}) technical pause{2}. Awaiting unpause.",
+
+  "matchzy.swapteams.unavailable": "Side swapping is not available right now.",
+  "matchzy.swapteams.beforestart": "Sides can only be swapped during warmup or at the start of the match.",
+  "matchzy.swapteams.paused": "Unpause the match before swapping sides.",
+  "matchzy.swapteams.firstfreeze": "Once the match has started, sides can only be swapped during the first freeze time at 0:0.",
+  "matchzy.swapteams.invalidsides": "Side swapping was cancelled: invalid team side assignments.",
+  "matchzy.swapteams.swapped_live": "An admin swapped the CT/T sides. The first round will restart.",
+  "matchzy.swapteams.swapped_warmup": "An admin swapped the CT/T sides."
 }

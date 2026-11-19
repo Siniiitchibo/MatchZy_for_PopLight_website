@@ -172,5 +172,13 @@
   "matchzy.pause.pauserequestcanceled": "{green}{0}{default} zrušili svoju žiadosť o prestávku.",
   "matchzy.pause.unpausedby": "{green}{0}{default} ukončil prestávku.",
   "matchzy.pause.techhinttime": "{0} ({1}) technická prestávka{2}. Čas, po ktorom môže ktokoľvek pokračovať v zápase: {3}",
-  "matchzy.pause.techhintawaiting": "{0} ({1}) technická prestávka{2}. Čaká sa na pokračovanie."
+  "matchzy.pause.techhintawaiting": "{0} ({1}) technická prestávka{2}. Čaká sa na pokračovanie.",
+
+  "matchzy.swapteams.unavailable": "Výmena strán teraz nie je dostupná.",
+  "matchzy.swapteams.beforestart": "Strany možno vymeniť vo warmupe alebo na začiatku zápasu.",
+  "matchzy.swapteams.paused": "Pred výmenou strán najprv zruš pauzu.",
+  "matchzy.swapteams.firstfreeze": "Po začatí zápasu možno strany vymeniť iba počas prvého freezetime pri skóre 0:0.",
+  "matchzy.swapteams.invalidsides": "Výmena bola zastavená: neplatné priradenie strán tímov.",
+  "matchzy.swapteams.swapped_live": "Admin vymenil strany CT/T. Prvé kolo sa spustí odznova.",
+  "matchzy.swapteams.swapped_warmup": "Admin vymenil strany CT/T."
 }

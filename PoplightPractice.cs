@@ -11,6 +11,11 @@ namespace MatchZy;
 
 public partial class MatchZy
 {
+    private static void DisablePracticeRoundBackupFiles()
+    {
+        Server.ExecuteCommand("mp_backup_round_file \"\"");
+    }
+
     private sealed class PoplightPracticeTeam
     {
         public PoplightPracticeTeam() { }
@@ -247,6 +252,7 @@ public partial class MatchZy
     }
 
     [ConsoleCommand("poplight_loadpractice", "Loads a PopLight practice session")]
+
     public void PoplightLoadPractice(
         CCSPlayerController? player, CommandInfo command)
     {
@@ -317,6 +323,7 @@ public partial class MatchZy
 
             // The existing map-start handler uses autoStartMode 2. The listener
             // above confirms practice after the selected map has loaded.
+            DisablePracticeRoundBackupFiles();
             Server.ExecuteCommand("game_type 0;game_mode 1;sv_password \"\"");
             Server.ExecuteCommand(workshop
                 ? $"host_workshop_map {session.Map}"

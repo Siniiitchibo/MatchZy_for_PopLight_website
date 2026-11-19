@@ -62,6 +62,110 @@ namespace MatchZy
             }
         }
 
+        private DateTime lastAdminTeamSwap = DateTime.MinValue;
+
+        [ConsoleCommand("css_swapteams", "Swaps CT/T before the first round")]
+        public void OnSwapTeamsCommand(
+            CCSPlayerController? player,
+            CommandInfo? command)
+        {
+            if (!IsPlayerAdmin(player, "css_swapteams", "@css/config"))
+            {
+                SendPlayerNotAdminMessage(player);
+                return;
+            }
+
+            if (!isMatchSetup || isPractice || isSleep || isVeto ||
+                isKnifeRound || isSideSelectionPhase ||
+                currentMapFinished || seriesEnded || isRoundRestoring)
+            {
+                ReplyToUserCommand(
+                    player,
+                    Localizer["matchzy.swapteams.unavailable"]);
+                return;
+            }
+
+            bool live = matchStarted && isMatchLive;
+
+            if (!live && (!isWarmup || matchStarted))
+            {
+                ReplyToUserCommand(
+                    player,
+                    Localizer["matchzy.swapteams.beforestart"]);
+                return;
+            }
+
+            var rules = GetGameRules();
+
+            if (isPaused || rules.GamePaused ||
+                rules.CTTimeOutActive || rules.TerroristTimeOutActive)
+            {
+                ReplyToUserCommand(
+                    player,
+                    Localizer["matchzy.swapteams.paused"]);
+                return;
+            }
+
+            if (live)
+            {
+                var (score1, score2) = GetTeamsScore();
+
+                if (rules.TotalRoundsPlayed != 0 ||
+                    !rules.FreezePeriod ||
+                    score1 != 0 || score2 != 0)
+                {
+                    ReplyToUserCommand(
+                        player,
+                        Localizer["matchzy.swapteams.firstfreeze"]);
+                    return;
+                }
+            }
+
+            if (!teamSides.TryGetValue(matchzyTeam1, out var side1) ||
+                !teamSides.TryGetValue(matchzyTeam2, out var side2) ||
+                !reverseTeamSides.ContainsKey("CT") ||
+                !reverseTeamSides.ContainsKey("TERRORIST") ||
+                !((side1 == "CT" && side2 == "TERRORIST") ||
+                  (side1 == "TERRORIST" && side2 == "CT")))
+            {
+                ReplyToUserCommand(
+                    player,
+                    Localizer["matchzy.swapteams.invalidsides"]);
+                return;
+            }
+
+            // Ochrana pred náhodným dvojitým vykonaním príkazu.
+            if ((DateTime.UtcNow - lastAdminTeamSwap).TotalSeconds < 3)
+            {
+                return;
+            }
+
+            lastAdminTeamSwap = DateTime.UtcNow;
+
+            // Zostavy a identita tímov zostávajú zachované.
+            // Mení sa iba ich priradenie ku CT/T.
+            SwapSidesInTeamData(true);
+            Server.ExecuteCommand("mp_swapteams");
+            SetTeamNames();
+
+            if (live)
+            {
+                Server.ExecuteCommand("mp_restartgame 1");
+            }
+
+            Log(
+                $"[swapteams] Admin: " +
+                $"{player?.SteamID.ToString() ?? "Console"}, " +
+                $"match: {liveMatchId}");
+
+            PrintToAllChat(Localizer[
+                live
+                    ? "matchzy.swapteams.swapped_live"
+                    : "matchzy.swapteams.swapped_warmup"
+            ]);
+        }
+
+
         [ConsoleCommand("css_ready", "Marks the player ready")]
         [ConsoleCommand("css_rdy", "Marks the player ready")]
         public void OnPlayerReady(CCSPlayerController? player, CommandInfo? command)
